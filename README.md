@@ -109,7 +109,7 @@ Mở trình duyệt tại `http://localhost:5173` và đăng nhập:
 ## Cấu trúc dự án
 
 ```
-c:\Study\Web\
+
 ├── backend/                    # Express.js Backend
 │   ├── config/db.js           # Kết nối database
 │   ├── controllers/           # 9 controllers (MVC)
