@@ -15,7 +15,7 @@ async function requireAuth(req, res, next) {
     const payload = jwt.verify(token, JWT_SECRET);
     const user = await db('users').where({ id: payload.userId }).first();
 
-    if (!user) {
+    if (!user || !user.is_active) {
       return res.status(401).json({ message: 'User not found.' });
     }
 
@@ -26,7 +26,16 @@ async function requireAuth(req, res, next) {
   }
 }
 
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access is required.' });
+  }
+
+  return next();
+}
+
 module.exports = {
   requireAuth,
+  requireAdmin,
   JWT_SECRET,
 };
