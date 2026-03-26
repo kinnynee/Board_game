@@ -3,19 +3,41 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ username: '', email: '', password: '', display_name: '' });
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    display_name: '',
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const update = (field) => (event) => {
+    setForm((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
+
+    if (form.password !== form.confirmPassword) {
+      setError('Mat khau nhap lai chua trung khop.');
+      return;
+    }
+
     setLoading(true);
+
     try {
-      await register(form);
-      navigate('/');
+      await register({
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        display_name: form.display_name,
+      });
+      navigate('/profile');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -23,40 +45,89 @@ export default function RegisterPage() {
     }
   };
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
-
   return (
-    <div className="auth-page">
+    <section className="auth-page">
       <div className="auth-card">
-        <div style={{ textAlign: 'center', fontSize: '3rem', marginBottom: 8 }}>🎮</div>
-        <h1>Tạo tài khoản</h1>
-        <p>Đăng ký để tham gia Board Game Arena</p>
+        <span className="auth-badge">Register</span>
+        <h1>Tao tai khoan moi</h1>
+        <p className="auth-subtitle">
+          Form dang ky nay dung controlled inputs voi validation co ban, dung voi cach hoc React co ban.
+        </p>
+
         {error && <div className="auth-error">{error}</div>}
-        <form onSubmit={handleSubmit}>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Tên đăng nhập</label>
-            <input className="form-input" value={form.username} onChange={update('username')} placeholder="username" required />
+            <label className="form-label" htmlFor="register-username">Username</label>
+            <input
+              id="register-username"
+              className="form-input"
+              value={form.username}
+              onChange={update('username')}
+              placeholder="username"
+              required
+            />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Tên hiển thị</label>
-            <input className="form-input" value={form.display_name} onChange={update('display_name')} placeholder="Tên của bạn" />
+            <label className="form-label" htmlFor="register-display-name">Display name</label>
+            <input
+              id="register-display-name"
+              className="form-input"
+              value={form.display_name}
+              onChange={update('display_name')}
+              placeholder="Ten hien thi"
+            />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Email</label>
-            <input className="form-input" type="email" value={form.email} onChange={update('email')} placeholder="email@example.com" required />
+            <label className="form-label" htmlFor="register-email">Email</label>
+            <input
+              id="register-email"
+              className="form-input"
+              type="email"
+              value={form.email}
+              onChange={update('email')}
+              placeholder="email@example.com"
+              required
+            />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Mật khẩu</label>
-            <input className="form-input" type="password" value={form.password} onChange={update('password')} placeholder="Tối thiểu 6 ký tự" required />
+            <label className="form-label" htmlFor="register-password">Mat khau</label>
+            <input
+              id="register-password"
+              className="form-input"
+              type="password"
+              value={form.password}
+              onChange={update('password')}
+              placeholder="Toi thieu 6 ky tu"
+              required
+            />
           </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="register-confirm-password">Nhap lai mat khau</label>
+            <input
+              id="register-confirm-password"
+              className="form-input"
+              type="password"
+              value={form.confirmPassword}
+              onChange={update('confirmPassword')}
+              placeholder="Nhap lai mat khau"
+              required
+            />
+          </div>
+
           <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Đang tạo...' : 'Đăng ký'}
+            {loading ? 'Dang tao tai khoan...' : 'Dang ky'}
           </button>
         </form>
+
         <div className="auth-footer">
-          Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+          Da co tai khoan? <Link to="/login">Dang nhap</Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

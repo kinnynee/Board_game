@@ -1,101 +1,171 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ProfilePage() {
-  const { id } = useParams();
-  const { user: currentUser, updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({});
-  const [scores, setScores] = useState([]);
-
-  const isOwnProfile = currentUser && parseInt(id) === currentUser.id;
+  const [form, setForm] = useState({ display_name: '', email: '', bio: '' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.getProfile(id).then(p => { setProfile(p); setForm({ display_name: p.display_name || '', bio: p.bio || '', email: p.email || '' }); }).catch(console.error);
-    if (isOwnProfile) api.getMyScores().then(setScores).catch(console.error);
-  }, [id]);
+    if (!user?.id) {
+      return;
+    }
+
+    setLoading(true);
+    api.getProfile(user.id)
+      .then((data) => {
+        setProfile(data);
+        setForm({
+          display_name: data.display_name || '',
+          email: data.email || '',
+          bio: data.bio || '',
+        });
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
   const handleSave = async () => {
+    setError('');
+    setSaving(true);
+
     try {
       const updated = await api.updateProfile(form);
-      setProfile(prev => ({ ...prev, ...updated }));
+      setProfile(updated);
       updateUser(updated);
       setEditing(false);
-    } catch (err) { alert(err.message); }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (!profile) return <div className="loading"><div className="spinner"></div></div>;
+  if (loading) {
+    return (
+      <section className="content-panel">
+        <div className="empty-state">
+          <div className="spinner" />
+          <p>Dang tai profile...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <section className="content-panel">
+        <div className="empty-state">
+          <h2>Khong tai duoc profile</h2>
+          <p>{error || 'Khong co du lieu de hien thi.'}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <div className="page-content">
-      <div className="card" style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div className="avatar avatar-xl">{profile.display_name?.[0] || '?'}</div>
-          <div style={{ flex: 1 }}>
+    <section className="content-panel">
+      <div className="profile-hero">
+        <div className="avatar avatar-xl">{profile.display_name?.[0] || '?'}</div>
+        <div className="profile-hero-copy">
+          <p className="section-tag">Profile</p>
+          <h1>{profile.display_name}</h1>
+          <p className="profile-meta">@{profile.username}</p>
+          <p className="profile-meta">
+            Joined {new Date(profile.created_at).toLocaleDateString('en-GB')}
+          </p>
+        </div>
+        <button className="btn btn-secondary" type="button" onClick={() => setEditing((prev) => !prev)}>
+          {editing ? 'Dong form' : 'Chinh sua'}
+        </button>
+      </div>
+
+      {error && <div className="auth-error">{error}</div>}
+
+      <div className="profile-grid">
+        <article className="profile-card">
+          <h2>Thong tin ca nhan</h2>
+          <dl className="profile-fields">
+            <div>
+              <dt>Username</dt>
+              <dd>{profile.username}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{profile.email || 'Chua cap nhat'}</dd>
+            </div>
+            <div>
+              <dt>Bio</dt>
+              <dd>{profile.bio || 'Ban chua them gioi thieu ban than.'}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="profile-card">
+          <h2>Cap nhat profile</h2>
+          <p className="card-copy">
+            Phan nay dung controlled form voi <code>useState</code>, gui <code>PUT</code> len REST API va cap nhat lai state sau khi luu.
+          </p>
+
+          <div className="auth-form">
             {editing ? (
-              <div>
+              <>
                 <div className="form-group">
-                  <input className="form-input" value={form.display_name} onChange={e => setForm({ ...form, display_name: e.target.value })} placeholder="Tên hiển thị" />
+                  <label className="form-label" htmlFor="profile-display-name">Display name</label>
+                  <input
+                    id="profile-display-name"
+                    className="form-input"
+                    value={form.display_name}
+                    onChange={(event) => setForm({ ...form, display_name: event.target.value })}
+                    placeholder="Display name"
+                  />
                 </div>
+
                 <div className="form-group">
-                  <input className="form-input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email" />
+                  <label className="form-label" htmlFor="profile-email">Email</label>
+                  <input
+                    id="profile-email"
+                    className="form-input"
+                    value={form.email}
+                    onChange={(event) => setForm({ ...form, email: event.target.value })}
+                    placeholder="Email"
+                  />
                 </div>
+
                 <div className="form-group">
-                  <textarea className="form-textarea" value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Giới thiệu bản thân" />
+                  <label className="form-label" htmlFor="profile-bio">Bio</label>
+                  <textarea
+                    id="profile-bio"
+                    className="form-textarea"
+                    rows={4}
+                    value={form.bio}
+                    onChange={(event) => setForm({ ...form, bio: event.target.value })}
+                    placeholder="Viet vai dong gioi thieu"
+                  />
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn btn-primary btn-sm" onClick={handleSave}>💾 Lưu</button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setEditing(false)}>Hủy</button>
+
+                <div className="button-row">
+                  <button className="btn btn-primary" type="button" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Dang luu...' : 'Luu thay doi'}
+                  </button>
+                  <button className="btn btn-secondary" type="button" onClick={() => setEditing(false)}>
+                    Huy
+                  </button>
                 </div>
-              </div>
+              </>
             ) : (
-              <div>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>{profile.display_name}</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>@{profile.username}</p>
-                {profile.bio && <p style={{ marginTop: 8 }}>{profile.bio}</p>}
-                {isOwnProfile && <button className="btn btn-secondary btn-sm" style={{ marginTop: 12 }} onClick={() => setEditing(true)}>✏️ Chỉnh sửa</button>}
+              <div className="empty-state empty-state-left">
+                <p>Bam "Chinh sua" de cap nhat ten hien thi, email va bio.</p>
               </div>
             )}
           </div>
-        </div>
+        </article>
       </div>
-
-      <div className="card-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 24 }}>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--accent-light)' }}>🎮</div>
-          <div className="stat-info"><h3>{profile.stats?.totalGames || 0}</h3><p>Trò chơi</p></div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--success-light)' }}>🏆</div>
-          <div className="stat-info"><h3>{profile.stats?.wins || 0}</h3><p>Chiến thắng</p></div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>⭐</div>
-          <div className="stat-info"><h3>{profile.stats?.achievements || 0}</h3><p>Thành tựu</p></div>
-        </div>
-      </div>
-
-      {isOwnProfile && scores.length > 0 && (
-        <div className="card">
-          <h3 style={{ marginBottom: 16 }}>📊 Lịch sử chơi gần đây</h3>
-          <table className="data-table">
-            <thead><tr><th>Game</th><th>Điểm</th><th>Kết quả</th><th>Thời gian</th></tr></thead>
-            <tbody>
-              {scores.slice(0, 10).map(s => (
-                <tr key={s.id}>
-                  <td>{s.game_slug}</td>
-                  <td style={{ fontWeight: 700, color: 'var(--accent)' }}>{s.score}</td>
-                  <td><span className={`badge badge-${s.result === 'win' ? 'success' : s.result === 'lose' ? 'danger' : 'warning'}`}>{s.result}</span></td>
-                  <td>{new Date(s.created_at).toLocaleString('vi')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

@@ -10,13 +10,14 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       await login(username, password);
-      navigate('/');
+      navigate('/profile');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -25,29 +26,52 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
+    <section className="auth-page">
       <div className="auth-card">
-        <div style={{ textAlign: 'center', fontSize: '3rem', marginBottom: 8 }}>🎮</div>
-        <h1>Board Game Arena</h1>
-        <p>Đăng nhập để chơi game cùng bạn bè</p>
+        <span className="auth-badge">Sign In</span>
+        <h1>Dang nhap tai khoan</h1>
+        <p className="auth-subtitle">
+          Dang nhap de truy cap profile va tiep tuc cap nhat do an theo luong da hoc.
+        </p>
+
         {error && <div className="auth-error">{error}</div>}
-        <form onSubmit={handleSubmit}>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Tên đăng nhập</label>
-            <input className="form-input" type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Nhập username" required />
+            <label className="form-label" htmlFor="login-username">Username hoac email</label>
+            <input
+              id="login-username"
+              className="form-input"
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="Nhap username hoac email"
+              required
+            />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Mật khẩu</label>
-            <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Nhập mật khẩu" required />
+            <label className="form-label" htmlFor="login-password">Mat khau</label>
+            <input
+              id="login-password"
+              className="form-input"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Nhap mat khau"
+              required
+            />
           </div>
+
           <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Đang đăng nhập...' : ' Đăng nhập'}
+            {loading ? 'Dang dang nhap...' : 'Dang nhap'}
           </button>
         </form>
+
         <div className="auth-footer">
-          Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+          Chua co tai khoan? <Link to="/register">Dang ky ngay</Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

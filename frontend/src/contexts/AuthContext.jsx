@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '../api';
 
 const AuthContext = createContext(null);
@@ -9,14 +9,16 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      api.getMe()
-        .then(u => setUser(u))
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setLoading(false));
-    } else {
+
+    if (!token) {
       setLoading(false);
+      return;
     }
+
+    api.getMe()
+      .then((nextUser) => setUser(nextUser))
+      .catch(() => localStorage.removeItem('token'))
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (username, password) => {
@@ -39,7 +41,7 @@ export function AuthProvider({ children }) {
   };
 
   const updateUser = (updates) => {
-    setUser(prev => ({ ...prev, ...updates }));
+    setUser((prev) => ({ ...prev, ...updates }));
   };
 
   return (
