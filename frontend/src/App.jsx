@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { getBackendStatus } from "./api";
 import { AppProvider } from "./contexts/AppContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import HomePage from "./pages/HomePage";
 
 function App() {
@@ -36,7 +37,9 @@ function App() {
 
   return (
     <AppProvider>
-      <HomePage backendMessage={backendMessage} connectionState={connectionState} />
+      <AuthProvider>
+        <HomePage backendMessage={backendMessage} connectionState={connectionState} />
+      </AuthProvider>
     </AppProvider>
   );
 }

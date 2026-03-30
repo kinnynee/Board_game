@@ -8,15 +8,32 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      api.getMe().then(data => setUser(data));
+
+    if (!token) {
+      return;
     }
+
+    api
+      .getMe()
+      .then((data) => setUser(data))
+      .catch(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+      });
   }, []);
 
   const login = async (username, password) => {
     const data = await api.login(username, password);
     localStorage.setItem('token', data.token);
     setUser(data.user);
+    return data;
+  };
+
+  const register = async (payload) => {
+    const data = await api.register(payload);
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
+    return data;
   };
 
   const logout = () => {
@@ -24,8 +41,15 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = (nextUser) => {
+    setUser((currentUser) => ({
+      ...(currentUser || {}),
+      ...(nextUser || {}),
+    }));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
