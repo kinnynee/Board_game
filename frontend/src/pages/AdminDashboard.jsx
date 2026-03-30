@@ -1,71 +1,75 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api';
+import { useState } from 'react';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.adminGetStatistics().then(setStats).catch(console.error).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="loading"><div className="spinner"></div></div>;
-  if (!stats) return <div className="empty-state"><p>Không thể tải thống kê</p></div>;
+  // Hardcoded data (Ngu - Dumb level)
+  const stats = {
+    totalUsers: 100,
+    activeUsers: 80,
+    totalGamesPlayed: 500,
+    totalMessages: 1200,
+    gameStats: [
+      { game_slug: 'caro', total_plays: 250, avg_score: 15 },
+      { game_slug: 'chess', total_plays: 150, avg_score: 30 },
+      { game_slug: 'minesweeper', total_plays: 100, avg_score: 5 }
+    ],
+    recentUsers: [
+      { id: 1, display_name: 'Khai Admin', created_at: '2026-03-31' },
+      { id: 2, display_name: 'Người mới', created_at: '2026-03-30' }
+    ]
+  };
 
   return (
-    <div className="page-content">
-      <div className="page-header">
-        <h1>📊 Thống kê hệ thống</h1>
-        <p>Tổng quan về hoạt động của hệ thống</p>
-      </div>
-
-      <div className="card-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--accent-light)' }}>👥</div>
-          <div className="stat-info"><h3>{stats.totalUsers}</h3><p>Tổng người dùng</p></div>
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={{ borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>Admin Dashboard (Draft)</h1>
+      <p>This is a draft version of the admin dashboard with static data.</p>
+      
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ background: '#f0f0f0', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', flex: 1 }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>Total Users</p>
+          <h2 style={{ margin: 0 }}>{stats.totalUsers}</h2>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--success-light)' }}>✅</div>
-          <div className="stat-info"><h3>{stats.activeUsers}</h3><p>Đang hoạt động</p></div>
+        <div style={{ background: '#f0f0f0', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', flex: 1 }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>Active Users</p>
+          <h2 style={{ margin: 0 }}>{stats.activeUsers}</h2>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>🎮</div>
-          <div className="stat-info"><h3>{stats.totalGamesPlayed}</h3><p>Lượt chơi</p></div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>💬</div>
-          <div className="stat-info"><h3>{stats.totalMessages}</h3><p>Tin nhắn</p></div>
+        <div style={{ background: '#f0f0f0', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', flex: 1 }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>Games Played</p>
+          <h2 style={{ margin: 0 }}>{stats.totalGamesPlayed}</h2>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        <div className="card">
-          <h3 style={{ marginBottom: 16 }}>🎯 Thống kê theo game</h3>
-          <table className="data-table">
-            <thead><tr><th>Game</th><th>Lượt chơi</th><th>Điểm TB</th></tr></thead>
+      <div style={{ display: 'flex', gap: '30px' }}>
+        <div style={{ flex: 1 }}>
+          <h3>Game Statistics</h3>
+          <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#eee' }}>
+                <th>Game</th>
+                <th>Plays</th>
+                <th>Avg Score</th>
+              </tr>
+            </thead>
             <tbody>
               {stats.gameStats.map((g, i) => (
                 <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{g.game_slug}</td>
+                  <td>{g.game_slug}</td>
                   <td>{g.total_plays}</td>
-                  <td style={{ color: 'var(--accent)' }}>{g.avg_score ? Math.round(g.avg_score) : 0}</td>
+                  <td>{g.avg_score}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="card">
-          <h3 style={{ marginBottom: 16 }}>👤 Người dùng mới</h3>
-          {stats.recentUsers.map(u => (
-            <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-              <div className="avatar avatar-sm">{u.display_name?.[0] || '?'}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{u.display_name}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(u.created_at).toLocaleDateString('vi')}</div>
-              </div>
-            </div>
-          ))}
+        <div style={{ flex: 1 }}>
+          <h3>Recent Users</h3>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {stats.recentUsers.map(u => (
+              <li key={u.id} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                {u.display_name} - {u.created_at}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
