@@ -1,6 +1,6 @@
 import { useAppContext } from "../contexts/AppContext";
 
-function HomePage({ backendMessage, connectionState }) {
+function HomePage({ backendMessage, connectionState, onNavigate }) {
   const { appName, apiUrl } = useAppContext();
 
   return (
@@ -31,6 +31,15 @@ function HomePage({ backendMessage, connectionState }) {
                 {backendMessage}
               </p>
             </article>
+          </div>
+
+          <div className="nav-buttons">
+            <button className="nav-btn" onClick={() => onNavigate("achievements")}>
+              🏅 Thành Tựu
+            </button>
+            <button className="nav-btn" onClick={() => onNavigate("rankings")}>
+              🏆 Bảng Xếp Hạng
+            </button>
           </div>
         </div>
       </section>
