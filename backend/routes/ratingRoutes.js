@@ -1,18 +1,8 @@
-const db = require('../db');
+const express = require('express');
+const router = express.Router();
+const ratingController = require('../controllers/ratingController');
 
-class RatingService {
-  async addRating(data) {
-    return db('ratings').insert({ 
-      user_id: 1, 
-      game_slug: data.gameSlug, 
-      rating: data.rating, 
-      comment: data.comment 
-    });
-  }
-  
-  async getRatingsByGame(gameSlug) {
-    return db('ratings').where('game_slug', gameSlug).orderBy('created_at', 'desc');
-  }
-}
+router.post('/ratings', ratingController.addRating);
+router.get('/:slug/ratings', ratingController.getRatings);
 
-module.exports = new RatingService();
+module.exports = router;
