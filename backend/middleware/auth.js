@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+const userService = require('../services/userService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'board-game-secret';
 
@@ -14,9 +13,9 @@ async function requireAuth(req, res, next) {
     }
 
     const payload = jwt.verify(token, JWT_SECRET);
-    const user = await db('users').where({ id: payload.userId }).first();
+    const user = await userService.findActiveUserById(payload.userId);
 
-    if (!user || !user.is_active) {
+    if (!user) {
       return res.status(401).json({ message: 'User not found.' });
     }
 
@@ -40,30 +39,3 @@ module.exports = {
   requireAdmin,
   JWT_SECRET,
 };
-=======
-const { getUserByToken } = require("../services/authService");
-
-function authMiddleware(req, res, next) {
-  const authorizationHeader = req.headers.authorization || "";
-
-  if (!authorizationHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      message: "Authorization token is missing.",
-    });
-  }
-
-  const token = authorizationHeader.slice("Bearer ".length).trim();
-  const user = getUserByToken(token);
-
-  if (!user) {
-    return res.status(401).json({
-      message: "Token is invalid or expired.",
-    });
-  }
-
-  req.user = user;
-  return next();
-}
-
-module.exports = authMiddleware;
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
