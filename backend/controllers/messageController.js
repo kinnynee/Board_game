@@ -64,16 +64,26 @@ const messageController = {
     }
   },
 
-  async sendMessage(req, res) {
+  async editMessage(req, res) {
     try {
-      const { receiver_id, content } = req.body;
-      const [id] = await db('messages').insert({
-        sender_id: req.user.id,
-        receiver_id,
-        content
-      });
-      const message = await db('messages').where({ id }).first();
-      res.status(201).json(message);
+      const { id } = req.params;
+      const { content } = req.body;
+      const message = await db('messages').where({ id, sender_id: req.user.id }).first();
+      if (!message) return res.status(404).json({ error: 'Message not found or not authorized' });
+      await db('messages').where({ id }).update({ content });
+      res.json({ message: 'Message updated' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async deleteMessage(req, res) {
+    try {
+      const { id } = req.params;
+      const message = await db('messages').where({ id, sender_id: req.user.id }).first();
+      if (!message) return res.status(404).json({ error: 'Message not found or not authorized' });
+      await db('messages').where({ id }).delete();
+      res.json({ message: 'Message deleted' });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

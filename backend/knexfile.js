@@ -15,9 +15,7 @@ const sharedConfig = {
 
 function buildConnection() {
   if (process.env.DATABASE_URL) {
-    return {
-      connectionString: process.env.DATABASE_URL,
-    };
+    return process.env.DATABASE_URL;
   }
 
   return {
@@ -31,8 +29,11 @@ function buildConnection() {
 
 module.exports = {
   development: {
-    client: 'pg',
-    connection: buildConnection(),
+    client: 'sqlite3',
+    connection: {
+      filename: './dev.sqlite3',
+    },
+    useNullAsDefault: true,
     ...sharedConfig,
   },
   production: {

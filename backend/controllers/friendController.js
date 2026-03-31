@@ -16,15 +16,15 @@ const friendController = {
           this.on('friends.friend_id', '=', 'u2.id');
         })
         .select(
-          'friends.id', 'friends.status', 'friends.created_at',
+          'friends.id', 'friends.status', 'friends.created_at', 'friends.nickname',
           'u1.id as user1_id', 'u1.username as user1_username', 'u1.display_name as user1_display_name', 'u1.avatar as user1_avatar',
           'u2.id as user2_id', 'u2.username as user2_username', 'u2.display_name as user2_display_name', 'u2.avatar as user2_avatar'
         );
 
       const result = friends.map(f => {
         const friend = f.user1_id === userId
-          ? { id: f.user2_id, username: f.user2_username, display_name: f.user2_display_name, avatar: f.user2_avatar }
-          : { id: f.user1_id, username: f.user1_username, display_name: f.user1_display_name, avatar: f.user1_avatar };
+          ? { id: f.user2_id, username: f.user2_username, display_name: f.user2_display_name, avatar: f.user2_avatar, nickname: f.nickname }
+          : { id: f.user1_id, username: f.user1_username, display_name: f.user1_display_name, avatar: f.user1_avatar, nickname: f.nickname };
         return { friendship_id: f.id, status: f.status, created_at: f.created_at, friend };
       });
       res.json(result);
@@ -80,11 +80,17 @@ const friendController = {
     }
   },
 
-  async removeFriend(req, res) {
+  async updateFriend(req, res) {
     try {
       const { id } = req.params;
-      await db('friends').where({ id }).delete();
-      res.json({ message: 'Friend removed' });
+      const { nickname } = req.body;
+      const friendship = await db('friends').where({ id }).first();
+      if (!friendship) return res.status(404).json({ error: 'Friendship not found' });
+      if (friendship.user_id !== req.user.id && friendship.friend_id !== req.user.id) {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      await db('friends').where({ id }).update({ nickname });
+      res.json({ message: 'Friend updated' });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
