@@ -6,6 +6,8 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [toast, setToast] = useState(null);
+  const [confirmModal, setConfirmModal] = useState(null);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -15,26 +17,64 @@ export default function AdminUsers() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const loadUsers = (search = '') => {
     setLoading(true);
     api.adminGetUsers(search)
       .then(setUsers)
-      .catch(err => alert('Lỗi tải người dùng: ' + err.message))
+      .catch(err => showToast('Lỗi: ' + err.message))
       .finally(() => setLoading(false));
   };
 
-  const toggleRole = async (user) => {
-    const newRole = user.role === 'admin' ? 'user' : 'admin';
+  const handleAction = async () => {
+    if (!confirmModal) return;
+    const { type, user } = confirmModal;
     try {
-      await api.adminUpdateUser(user.id, { role: newRole });
+      if (type === 'role') {
+        const newRole = user.role === 'admin' ? 'user' : 'admin';
+        await api.adminUpdateUser(user.id, { role: newRole });
+        showToast(`Đã đổi quyền cho ${user.username} thành ${newRole}`);
+      } else if (type === 'status') {
+        await api.adminUpdateUser(user.id, { is_active: user.is_active ? 0 : 1 });
+        showToast(`Đã ${user.is_active ? 'khóa' : 'mở khóa'} tài khoản ${user.username}`);
+      }
       loadUsers(searchTerm);
-    } catch (err) { alert(err.message); }
+    } catch (err) {
+      showToast('Lỗi: ' + err.message);
+    } finally {
+      setConfirmModal(null);
+    }
   };
 
   if (loading && searchTerm === '') return <div className="admin-container">Đang tải danh sách người dùng Pro...</div>;
 
   return (
     <div className="admin-container">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="toast-container">
+          <div className="toast">✨ {toast}</div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Xác nhận thao tác</h3>
+            <p>Bạn có chắc chắn muốn thực hiện thay đổi này cho người dùng <strong>{confirmModal.user.username}</strong> không?</p>
+            <div className="modal-actions">
+              <button className="btn-pro btn-outline" onClick={() => setConfirmModal(null)}>Hủy</button>
+              <button className="btn-pro btn-primary" onClick={handleAction}>Xác nhận</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header style={{ marginBottom: '2rem' }}>
         <h1 style={{ margin: 0, fontSize: '1.875rem', fontWeight: 700 }}>Quản lý người dùng</h1>
         <p style={{ color: '#64748b' }}>Phân quyền và kiểm soát trạng thái tài khoản hệ thống.</p>
@@ -80,15 +120,10 @@ export default function AdminUsers() {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn-pro btn-outline" onClick={() => toggleRole(u)}>Đổi quyền</button>
+                    <button className="btn-pro btn-outline" onClick={() => setConfirmModal({ type: 'role', user: u })}>Đổi quyền</button>
                     <button 
                       className={`btn-pro ${u.is_active ? 'btn-outline' : 'btn-primary'}`}
-                      onClick={async () => {
-                        try {
-                          await api.adminUpdateUser(u.id, { is_active: u.is_active ? 0 : 1 });
-                          loadUsers(searchTerm);
-                        } catch (err) { alert(err.message); }
-                      }}
+                      onClick={() => setConfirmModal({ type: 'status', user: u })}
                     >
                       {u.is_active ? 'Khóa' : 'Mở khóa'}
                     </button>
