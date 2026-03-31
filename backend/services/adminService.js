@@ -2,11 +2,19 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 const adminService = {
-  // User Management
-  async getAllUsers() {
-    return await db('users')
-      .select('id', 'username', 'email', 'display_name', 'role', 'is_active', 'created_at')
-      .orderBy('id', 'desc');
+  // User Management (Phase 3: Added Search)
+  async getAllUsers(search = '') {
+    let query = db('users').select('id', 'username', 'email', 'display_name', 'role', 'is_active', 'created_at');
+    
+    if (search) {
+      query = query.where(function() {
+        this.where('username', 'like', `%${search}%`)
+            .orWhere('display_name', 'like', `%${search}%`)
+            .orWhere('email', 'like', `%${search}%`);
+      });
+    }
+    
+    return await query.orderBy('id', 'desc');
   },
 
   async updateUser(id, data) {
@@ -58,9 +66,14 @@ const adminService = {
     };
   },
 
-  // Game Management
-  async getAllGames() {
-    return await db('games').orderBy('id');
+  // Game Management (Phase 3: Added Search)
+  async getAllGames(search = '') {
+    let query = db('games');
+    if (search) {
+      query = query.where('name', 'like', `%${search}%`)
+                   .orWhere('slug', 'like', `%${search}%`);
+    }
+    return await query.orderBy('id');
   },
 
   async updateGameStatus(id, enabled) {

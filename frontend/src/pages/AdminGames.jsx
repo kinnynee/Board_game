@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import './Admin.css';
 
 export default function AdminGames() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    loadGames();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      loadGames(searchTerm);
+    }, 500);
 
-  const loadGames = () => {
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const loadGames = (search = '') => {
     setLoading(true);
-    api.adminGetGames()
+    api.adminGetGames(search)
       .then(setGames)
       .catch(err => alert('Lỗi tải danh sách game: ' + err.message))
       .finally(() => setLoading(false));
@@ -20,35 +26,88 @@ export default function AdminGames() {
   const toggleEnabled = async (game) => {
     try {
       await api.adminUpdateGame(game.id, { enabled: game.enabled ? 0 : 1 });
-      loadGames();
+      loadGames(searchTerm);
     } catch (err) { alert(err.message); }
   };
 
-  if (loading) return <div style={{ padding: '20px' }}>Đang tải danh sách game...</div>;
+  const getGamePoster = (slug) => {
+    // Mapping posters to slugs (Phase 3 Pro)
+    const posters = {
+      'caro': 'https://placehold.co/400x200/6366f1/ffffff?text=Caro+Master',
+      'chess': 'https://placehold.co/400x200/1e293b/ffffff?text=Chess+Pro',
+      'minesweeper': 'https://placehold.co/400x200/ef4444/ffffff?text=Minesweeper'
+    };
+    return posters[slug] || 'https://placehold.co/400x225/e2e8f0/64748b?text=Game+Poster';
+  };
+
+  if (loading && searchTerm === '') return <div className="admin-container">Đang tải danh mục game Pro...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>🎯 Quản lý Game</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+    <div className="admin-container">
+      <header style={{ marginBottom: '2rem' }}>
+        <h1 style={{ margin: 0, fontSize: '1.875rem', fontWeight: 700 }}>Danh mục trò chơi</h1>
+        <p style={{ color: '#64748b' }}>Quản lý trạng thái và cấu hình các trò chơi trên nền tảng.</p>
+      </header>
+
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm trò chơi..." 
+        className="search-input"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: '2rem' }}
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
         {games.map(g => (
-          <div key={g.id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ margin: '0 0 10px 0' }}>{g.name}</h3>
-            <p style={{ margin: '5px 0', fontSize: '0.9rem', color: '#666' }}>Slug: <code>{g.slug}</code></p>
-            <p style={{ margin: '5px 0', fontSize: '0.9rem' }}>Kích thước: {g.board_width}x{g.board_height}</p>
-            <div style={{ margin: '15px 0' }}>
-              <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '0.85rem', background: g.enabled ? '#d4edda' : '#f8d7da', color: g.enabled ? '#155724' : '#721c24' }}>
-                {g.enabled ? 'Đang bật' : 'Đang tắt'}
-              </span>
+          <div key={g.id} className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
+              <img 
+                src={getGamePoster(g.slug)} 
+                alt={g.name} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              />
+              <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                <span className={`badge ${g.enabled ? 'badge-success' : 'badge-danger'}`}>
+                  {g.enabled ? 'ONLINE' : 'OFFLINE'}
+                </span>
+              </div>
             </div>
-            <button 
-              onClick={() => toggleEnabled(g)}
-              style={{ width: '100%', padding: '8px', cursor: 'pointer', background: g.enabled ? '#f8d7da' : '#d4edda', border: '1px solid #ccc', borderRadius: '4px' }}
-            >
-              {g.enabled ? 'Tắt game' : 'Bật game'}
-            </button>
+            
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>{g.name}</h3>
+                  <code style={{ fontSize: '0.75rem', color: '#6366f1' }}>{g.slug}</code>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Kích thước</div>
+                  <div style={{ fontWeight: 600 }}>{g.board_width} x {g.board_height}</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  className={`btn-pro ${g.enabled ? 'btn-outline' : 'btn-primary'}`}
+                  style={{ flex: 1 }}
+                  onClick={() => toggleEnabled(g)}
+                >
+                  {g.enabled ? 'Tắt hệ thống' : 'Bật hệ thống'}
+                </button>
+                <button className="btn-pro btn-outline" style={{ flex: 1 }}>Cấu hình</button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
+
+      {games.length === 0 && !loading && (
+        <div className="glass-card" style={{ textAlign: 'center', padding: '4rem' }}>
+            <p style={{ color: '#64748b' }}>Không tìm thấy trò chơi nào khớp với từ khóa "{searchTerm}".</p>
+        </div>
+      )}
     </div>
   );
 }

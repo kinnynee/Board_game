@@ -4,7 +4,8 @@ const adminController = {
   // User Management
   async listUsers(req, res) {
     try {
-      const users = await adminService.getAllUsers();
+      const { search } = req.query;
+      const users = await adminService.getAllUsers(search);
       res.json(users);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -54,7 +55,8 @@ const adminController = {
   // Game Management
   async listAllGames(req, res) {
     try {
-      const games = await adminService.getAllGames();
+      const { search } = req.query;
+      const games = await adminService.getAllGames(search);
       res.json(games);
     } catch (err) {
       res.status(500).json({ error: err.message });

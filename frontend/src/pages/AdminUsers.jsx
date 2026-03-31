@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import './Admin.css';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      loadUsers(searchTerm);
+    }, 500);
 
-  const loadUsers = () => {
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const loadUsers = (search = '') => {
     setLoading(true);
-    api.adminGetUsers()
+    api.adminGetUsers(search)
       .then(setUsers)
       .catch(err => alert('Lỗi tải người dùng: ' + err.message))
       .finally(() => setLoading(false));
@@ -21,55 +27,83 @@ export default function AdminUsers() {
     const newRole = user.role === 'admin' ? 'user' : 'admin';
     try {
       await api.adminUpdateUser(user.id, { role: newRole });
-      loadUsers();
+      loadUsers(searchTerm);
     } catch (err) { alert(err.message); }
   };
 
-  const toggleActive = async (user) => {
-    try {
-      await api.adminUpdateUser(user.id, { is_active: user.is_active ? 0 : 1 });
-      loadUsers();
-    } catch (err) { alert(err.message); }
-  };
-
-  if (loading) return <div style={{ padding: '20px' }}>Đang tải danh sách người dùng...</div>;
+  if (loading && searchTerm === '') return <div className="admin-container">Đang tải danh sách người dùng Pro...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>👥 Quản lý người dùng</h1>
-      <table border="1" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-        <thead>
-          <tr style={{ background: '#f4f4f4' }}>
-            <th style={{ padding: '10px' }}>ID</th>
-            <th style={{ padding: '10px' }}>Username</th>
-            <th style={{ padding: '10px' }}>Tên hiển thị</th>
-            <th style={{ padding: '10px' }}>Vai trò</th>
-            <th style={{ padding: '10px' }}>Trạng thái</th>
-            <th style={{ padding: '10px' }}>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td style={{ padding: '10px' }}>{u.id}</td>
-              <td style={{ padding: '10px' }}>{u.username}</td>
-              <td style={{ padding: '10px' }}>{u.display_name}</td>
-              <td style={{ padding: '10px' }}>
-                <span style={{ padding: '2px 8px', borderRadius: '4px', background: u.role === 'admin' ? '#ffeeba' : '#d4edda' }}>
-                  {u.role}
-                </span>
-              </td>
-              <td style={{ padding: '10px' }}>{u.is_active ? '✅ Hoạt động' : '❌ Đã khóa'}</td>
-              <td style={{ padding: '10px' }}>
-                <button onClick={() => toggleRole(u)} style={{ marginRight: '5px' }}>Đổi quyền</button>
-                <button onClick={() => toggleActive(u)}>
-                  {u.is_active ? 'Khóa' : 'Mở'}
-                </button>
-              </td>
+    <div className="admin-container">
+      <header style={{ marginBottom: '2rem' }}>
+        <h1 style={{ margin: 0, fontSize: '1.875rem', fontWeight: 700 }}>Quản lý người dùng</h1>
+        <p style={{ color: '#64748b' }}>Phân quyền và kiểm soát trạng thái tài khoản hệ thống.</p>
+      </header>
+
+      <div className="glass-card">
+        <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm theo tên, username hoặc email..." 
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn-pro btn-outline" onClick={() => loadUsers(searchTerm)}>Làm mới</button>
+        </div>
+
+        <table className="pro-table">
+          <thead>
+            <tr>
+              <th>Người dùng</th>
+              <th>Vai trò</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.id}>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{u.display_name}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>@{u.username} • {u.email}</div>
+                </td>
+                <td>
+                  <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
+                    {u.role.toUpperCase()}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${u.is_active ? 'badge-success' : 'badge-danger'}`}>
+                    {u.is_active ? 'Hoạt động' : 'Đã khóa'}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-pro btn-outline" onClick={() => toggleRole(u)}>Đổi quyền</button>
+                    <button 
+                      className={`btn-pro ${u.is_active ? 'btn-outline' : 'btn-primary'}`}
+                      onClick={async () => {
+                        try {
+                          await api.adminUpdateUser(u.id, { is_active: u.is_active ? 0 : 1 });
+                          loadUsers(searchTerm);
+                        } catch (err) { alert(err.message); }
+                      }}
+                    >
+                      {u.is_active ? 'Khóa' : 'Mở khóa'}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {users.length === 0 && !loading && (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+            Không tìm thấy người dùng nào phù hợp.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
