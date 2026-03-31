@@ -9,12 +9,8 @@ const friendController = {
           this.where({ user_id: userId, status: 'accepted' })
             .orWhere({ friend_id: userId, status: 'accepted' });
         })
-        .join('users as u1', function() {
-          this.on('friends.user_id', '=', 'u1.id');
-        })
-        .join('users as u2', function() {
-          this.on('friends.friend_id', '=', 'u2.id');
-        })
+        .leftJoin('users as u1', 'friends.user_id', 'u1.id')
+        .leftJoin('users as u2', 'friends.friend_id', 'u2.id')
         .select(
           'friends.id', 'friends.status', 'friends.created_at', 'friends.nickname',
           'u1.id as user1_id', 'u1.username as user1_username', 'u1.display_name as user1_display_name', 'u1.avatar as user1_avatar',
@@ -23,10 +19,18 @@ const friendController = {
 
       const result = friends.map(f => {
         const friend = f.user1_id === userId
-          ? { id: f.user2_id, username: f.user2_username, display_name: f.user2_display_name, avatar: f.user2_avatar, nickname: f.nickname }
-          : { id: f.user1_id, username: f.user1_username, display_name: f.user1_display_name, avatar: f.user1_avatar, nickname: f.nickname };
-        return { friendship_id: f.id, status: f.status, created_at: f.created_at, friend };
+          ? { id: f.user2_id, username: f.user2_username, display_name: f.user2_display_name, avatar: f.user2_avatar }
+          : { id: f.user1_id, username: f.user1_username, display_name: f.user1_display_name, avatar: f.user1_avatar };
+
+        return {
+          friendship_id: f.id,
+          status: f.status,
+          created_at: f.created_at,
+          nickname: f.nickname || null,
+          friend
+        };
       });
+
       res.json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -48,14 +52,32 @@ const friendController = {
   async sendRequest(req, res) {
     try {
       const { friend_id } = req.body;
-      if (friend_id === req.user.id) return res.status(400).json({ error: 'Cannot add yourself' });
+      const userId = req.user.id;
+
+      if (typeof friend_id !== 'number') {
+        return res.status(400).json({ error: 'friend_id is required and must be a number' });
+      }
+      if (friend_id === userId) {
+        return res.status(400).json({ error: 'Cannot add yourself as friend' });
+      }
+
       const existing = await db('friends')
         .where(function() {
-          this.where({ user_id: req.user.id, friend_id })
-            .orWhere({ user_id: friend_id, friend_id: req.user.id });
-        }).first();
-      if (existing) return res.status(400).json({ error: 'Friend request already exists' });
-      const [id] = await db('friends').insert({ user_id: req.user.id, friend_id, status: 'pending' });
+          this.where({ user_id: userId, friend_id })
+            .orWhere({ user_id: friend_id, friend_id: userId });
+        })
+        .first();
+
+      if (existing) {
+        if (existing.status === 'pending') {
+          return res.status(400).json({ error: 'Friend request is already pending' });
+        }
+        if (existing.status === 'accepted') {
+          return res.status(400).json({ error: 'User is already your friend' });
+        }
+      }
+
+      const [id] = await db('friends').insert({ user_id: userId, friend_id, status: 'pending' });
       res.status(201).json({ id, message: 'Friend request sent' });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -64,17 +86,27 @@ const friendController = {
 
   async respondRequest(req, res) {
     try {
-      const { id } = req.params;
+      const requestId = Number(req.params.id);
       const { action } = req.body;
-      const request = await db('friends').where({ id, friend_id: req.user.id }).first();
-      if (!request) return res.status(404).json({ error: 'Request not found' });
-      if (action === 'accept') {
-        await db('friends').where({ id }).update({ status: 'accepted' });
-        res.json({ message: 'Friend request accepted' });
-      } else {
-        await db('friends').where({ id }).delete();
-        res.json({ message: 'Friend request rejected' });
+      if (!['accept', 'reject'].includes(action)) {
+        return res.status(400).json({ error: 'Action must be reject or accept' });
       }
+
+      const request = await db('friends')
+        .where({ id: requestId, friend_id: req.user.id, status: 'pending' })
+        .first();
+
+      if (!request) {
+        return res.status(404).json({ error: 'Friend request not found' });
+      }
+
+      if (action === 'accept') {
+        await db('friends').where({ id: requestId }).update({ status: 'accepted' });
+        return res.json({ message: 'Friend request accepted' });
+      }
+
+      await db('friends').where({ id: requestId }).delete();
+      res.json({ message: 'Friend request rejected' });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -82,15 +114,44 @@ const friendController = {
 
   async updateFriend(req, res) {
     try {
-      const { id } = req.params;
+      const friendshipId = Number(req.params.id);
       const { nickname } = req.body;
-      const friendship = await db('friends').where({ id }).first();
-      if (!friendship) return res.status(404).json({ error: 'Friendship not found' });
+
+      if (typeof nickname !== 'string') {
+        return res.status(400).json({ error: 'nickname must be a string' });
+      }
+
+      const friendship = await db('friends').where({ id: friendshipId }).first();
+      if (!friendship) {
+        return res.status(404).json({ error: 'Friendship not found' });
+      }
+
       if (friendship.user_id !== req.user.id && friendship.friend_id !== req.user.id) {
         return res.status(403).json({ error: 'Not authorized' });
       }
-      await db('friends').where({ id }).update({ nickname });
-      res.json({ message: 'Friend updated' });
+
+      await db('friends').where({ id: friendshipId }).update({ nickname });
+      res.json({ message: 'Friend nickname updated' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async removeFriend(req, res) {
+    try {
+      const friendshipId = Number(req.params.id);
+      const friendship = await db('friends').where({ id: friendshipId }).first();
+
+      if (!friendship) {
+        return res.status(404).json({ error: 'Friendship not found' });
+      }
+
+      if (friendship.user_id !== req.user.id && friendship.friend_id !== req.user.id) {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+
+      await db('friends').where({ id: friendshipId }).delete();
+      res.json({ message: 'Friend removed' });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

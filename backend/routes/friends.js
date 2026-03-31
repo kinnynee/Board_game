@@ -7,5 +7,6 @@ router.get('/pending', auth, friendController.getPendingRequests);
 router.post('/request', auth, friendController.sendRequest);
 router.put('/respond/:id', auth, friendController.respondRequest);
 router.put('/:id', auth, friendController.updateFriend);
+router.delete('/:id', auth, friendController.removeFriend);
 
 module.exports = router;
