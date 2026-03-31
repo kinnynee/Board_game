@@ -1,16 +1,14 @@
-import { useState } from 'react';
-
-// Lần 1: Dữ liệu thành tựu tĩnh (fake data) - chưa kết nối API
-const FAKE_ACHIEVEMENTS = [
-  { id: 1, title: 'Người mới bắt đầu', description: 'Chơi ván đấu đầu tiên', icon: '🏅', unlocked: true },
-  { id: 2, title: 'Chiến thắng đầu tiên', description: 'Thắng 1 ván đấu', icon: '🥇', unlocked: true },
-  { id: 3, title: 'Chuỗi chiến thắng', description: 'Thắng 5 ván liên tiếp', icon: '🔥', unlocked: false },
-  { id: 4, title: 'Kẻ chinh phục', description: 'Thắng 20 ván đấu', icon: '👑', unlocked: false },
-  { id: 5, title: 'Bậc thầy chiến thuật', description: 'Thắng 50 ván đấu', icon: '🏆', unlocked: false },
-];
+import { useState, useEffect } from 'react';
+import api from '../api';
 
 export default function AchievementsPage({ onBack }) {
-  const [achievements] = useState(FAKE_ACHIEVEMENTS);
+  const [achievements, setAchievements] = useState([]);
+
+  useEffect(() => {
+    api.get('/achievements').then((res) => {
+      setAchievements(res.data.data);
+    });
+  }, []);
 
   return (
     <div className="page-container">
