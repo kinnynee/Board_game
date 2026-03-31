@@ -1,13 +1,13 @@
 /* Admin Pro Styles (Phase 3) */
 :root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --bg-main: #f8fafc;
-  --card-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --text-main: #1e293b;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-main: #f1f5f9;
+  --card-bg: #ffffff;
+  --glass-border: #e2e8f0;
+  --text-main: #0f172a;
   --text-muted: #64748b;
-  --accent: #8b5cf6;
+  --accent: #6366f1;
 }
 
 .admin-container {

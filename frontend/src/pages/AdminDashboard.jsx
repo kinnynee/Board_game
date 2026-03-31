@@ -49,9 +49,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-container">
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.875rem', fontWeight: 700 }}>Hệ thống quản trị</h1>
-        <p style={{ color: '#64748b', margin: 0 }}>Chào mừng trở lại! Đây là tổng quan mạng lưới của bạn.</p>
+      <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '1.875rem', fontWeight: 700 }}>Hệ thống quản trị</h1>
+          <p style={{ color: '#64748b', margin: 0 }}>Chào mừng trở lại! Đây là tổng quan mạng lưới của bạn.</p>
+        </div>
+        <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+          🔄 Cập nhật lần cuối: {new Date().toLocaleTimeString()}
+        </div>
       </header>
       
       <div className="stats-grid">
