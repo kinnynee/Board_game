@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 function serializeUser(user, options = {}) {
+=======
+function serializeUser(user) {
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
   if (!user) {
     return null;
   }
 
+<<<<<<< HEAD
   const payload = {
     id: user.id,
     username: user.username,
@@ -26,10 +31,26 @@ function serializeUser(user, options = {}) {
 
 function serializeGame(game) {
   if (!game) {
+=======
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email ?? null,
+    display_name: user.display_name ?? "",
+    bio: user.bio ?? "",
+    created_at: user.created_at ?? null,
+    updated_at: user.updated_at ?? null,
+  };
+}
+
+function serializeScore(score) {
+  if (!score) {
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
     return null;
   }
 
   return {
+<<<<<<< HEAD
     id: game.id,
     slug: game.slug,
     name: game.name,
@@ -50,4 +71,21 @@ function serializeGame(game) {
 module.exports = {
   serializeUser,
   serializeGame,
+=======
+    id: score.id,
+    game_name: score.game_name,
+    score: score.score,
+    played_at: score.played_at ?? null,
+  };
+}
+
+function serializeScores(scores = []) {
+  return scores.map(serializeScore).filter(Boolean);
+}
+
+module.exports = {
+  serializeScore,
+  serializeScores,
+  serializeUser,
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 };

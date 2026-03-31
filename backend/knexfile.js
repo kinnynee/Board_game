@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 require('dotenv').config();
 
 const sharedConfig = {
@@ -42,3 +43,37 @@ module.exports = {
     ...sharedConfig,
   },
 };
+=======
+require("dotenv").config();
+
+const sharedConfig = {
+  client: "pg",
+  connection: {
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 5432),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  },
+  migrations: {
+    directory: "./migrations",
+  },
+  seeds: {
+    directory: "./seeds",
+  },
+};
+
+module.exports = {
+  development: {
+    ...sharedConfig,
+  },
+  staging: {
+    ...sharedConfig,
+  },
+  production: {
+    ...sharedConfig,
+  },
+};
+
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102

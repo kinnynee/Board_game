@@ -3,4 +3,9 @@ node_modules/
 .env.local
 dist/
 build/
+<<<<<<< HEAD
 .DS_Store
+=======
+.DS_Store
+backend/dev.sqlite3
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102

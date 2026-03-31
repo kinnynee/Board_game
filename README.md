@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #  Board Game - Ứng dụng Web Board Game
 
 ##  Tổng quan
@@ -212,3 +213,7 @@ npx knex seed:run
 - **Responsive** hỗ trợ mobile
 - **Gradient** game cards, glassmorphism login
 - **Animations**: hover effects, pulse cursor, match pop
+=======
+# Board_game
+Đây là đồ án xây dựng website board game full-stack, cho phép người dùng đăng ký, đăng nhập, chơi nhiều trò chơi, lưu điểm, lưu tiến trình và quản lý trang cá nhân. Hệ thống còn hỗ trợ kết bạn, nhắn tin, bảng xếp hạng, thành tựu và trang quản trị dành cho admin.
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
