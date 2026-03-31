@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { getBackendStatus } from "./api";
 import { AppProvider } from "./contexts/AppContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import HomePage from "./pages/HomePage";
 import AchievementsPage from "./pages/AchievementsPage";
 import RankingsPage from "./pages/RankingsPage";
@@ -55,7 +56,6 @@ function App() {
 
   return (
     <AppProvider>
-      {renderPage()}
     </AppProvider>
   );
 }

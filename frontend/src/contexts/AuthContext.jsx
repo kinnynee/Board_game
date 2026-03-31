@@ -9,7 +9,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api.getMe().then(data => setUser(data));
+      // Đã có logic tự động lấy lại thông tin user
+      api.getMe().then(nextUser => setUser(nextUser)).catch(() => localStorage.removeItem('token'));
     }
   }, []);
 
@@ -19,18 +20,23 @@ export function AuthProvider({ children }) {
     setUser(data.user);
   };
 
+  const register = async (userData) => {
+    const data = await api.register(userData);
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
   };
 
+  // Vẫn chưa có updateUser để đồng bộ Profile
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }
