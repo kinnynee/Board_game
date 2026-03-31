@@ -1,4 +1,29 @@
 {
+<<<<<<< HEAD
+  "name": "board-game-backend",
+  "version": "1.0.0",
+  "description": "Board Game Web Application Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate": "npx knex migrate:latest",
+    "seed": "npx knex seed:run",
+    "setup": "npx knex migrate:latest && npx knex seed:run"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.3",
+    "knex": "^3.1.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.16.3",
+    "sqlite3": "^6.0.1"
+  }
+}
+=======
   "name": "backend",
   "version": "1.0.0",
   "description": "Board game backend",
@@ -19,3 +44,4 @@
   }
 }
 
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
