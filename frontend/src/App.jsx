@@ -4,13 +4,19 @@ import { getBackendStatus } from "./api";
 import { AppProvider } from "./contexts/AppContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import HomePage from "./pages/HomePage";
+<<<<<<< HEAD
+=======
 import AchievementsPage from "./pages/AchievementsPage";
 import RankingsPage from "./pages/RankingsPage";
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 
 function App() {
   const [backendMessage, setBackendMessage] = useState("Checking backend connection...");
   const [connectionState, setConnectionState] = useState("loading");
+<<<<<<< HEAD
+=======
   const [currentPage, setCurrentPage] = useState("home");
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 
   useEffect(() => {
     let isMounted = true;
@@ -38,6 +44,13 @@ function App() {
     };
   }, []);
 
+<<<<<<< HEAD
+  return (
+    <AppProvider>
+      <AuthProvider>
+        <HomePage backendMessage={backendMessage} connectionState={connectionState} />
+      </AuthProvider>
+=======
   const renderPage = () => {
     if (currentPage === "achievements") {
       return <AchievementsPage onBack={() => setCurrentPage("home")} />;
@@ -56,8 +69,13 @@ function App() {
 
   return (
     <AppProvider>
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
     </AppProvider>
   );
 }
 
+<<<<<<< HEAD
 export default App;
+=======
+export default App;
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102

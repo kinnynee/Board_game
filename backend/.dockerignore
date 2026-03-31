@@ -1,3 +1,7 @@
 node_modules
 npm-debug.log
 .env
+<<<<<<< HEAD
+dev.sqlite3
+=======
+>>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
