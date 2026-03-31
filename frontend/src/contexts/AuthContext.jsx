@@ -8,32 +8,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-
-    if (!token) {
-      return;
+    if (token) {
+      // Đã có logic tự động lấy lại thông tin user
+      api.getMe().then(nextUser => setUser(nextUser)).catch(() => localStorage.removeItem('token'));
     }
-
-    api
-      .getMe()
-      .then((data) => setUser(data))
-      .catch(() => {
-        localStorage.removeItem('token');
-        setUser(null);
-      });
   }, []);
 
   const login = async (username, password) => {
     const data = await api.login(username, password);
     localStorage.setItem('token', data.token);
     setUser(data.user);
-    return data;
   };
 
-  const register = async (payload) => {
-    const data = await api.register(payload);
+  const register = async (userData) => {
+    const data = await api.register(userData);
     localStorage.setItem('token', data.token);
     setUser(data.user);
-    return data;
   };
 
   const logout = () => {
@@ -41,20 +31,12 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const updateUser = (nextUser) => {
-    setUser((currentUser) => ({
-      ...(currentUser || {}),
-      ...(nextUser || {}),
-    }));
-  };
-
+  // Vẫn chưa có updateUser để đồng bộ Profile
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }
