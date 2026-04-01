@@ -14,6 +14,12 @@ function normalizeUserId(userId) {
   return Number(userId);
 }
 
+function buildStatusError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 async function getFriends(userId) {
   const normalizedUserId = normalizeUserId(userId);
   const includeNickname = await hasNicknameColumn();
@@ -98,13 +104,32 @@ async function createFriendRequest(userId, friendId) {
   const normalizedUserId = normalizeUserId(userId);
   const normalizedFriendId = normalizeUserId(friendId);
 
-  const [id] = await db('friends').insert({
-    user_id: normalizedUserId,
-    friend_id: normalizedFriendId,
-    status: 'pending',
-  });
+  try {
+    const insertedRows = await db('friends')
+      .insert({
+        user_id: normalizedUserId,
+        friend_id: normalizedFriendId,
+        status: 'pending',
+      })
+      .returning('id');
 
-  return id;
+    if (Array.isArray(insertedRows) && insertedRows.length > 0) {
+      const firstRow = insertedRows[0];
+      return typeof firstRow === 'object' && firstRow !== null ? firstRow.id : firstRow;
+    }
+
+    return null;
+  } catch (error) {
+    if (error?.code === '23505') {
+      throw buildStatusError(409, 'Friend request already exists.');
+    }
+
+    if (error?.code === '23503') {
+      throw buildStatusError(404, 'The selected user could not be found.');
+    }
+
+    throw error;
+  }
 }
 
 async function getPendingRequestForRecipient(requestId, userId) {
