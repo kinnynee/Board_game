@@ -13,8 +13,6 @@ import { useTheme } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
-import RankingsPage from './pages/RankingsPage';
-import AchievementsPage from './pages/AchievementsPage';
 import './App.css';
 
 function ProtectedRoute() {
@@ -145,6 +143,7 @@ function AppLayout() {
 
               <nav className="topbar-actions topbar-actions-desktop">
                 <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
+              <Link className="btn btn-secondary btn-compact" to="/games">Games</Link>
 
                 <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
                   {darkMode ? 'Light mode' : 'Dark mode'}
@@ -228,6 +227,9 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Route>
+
+        <Route path="/games" element={<GamePage />} />
+        <Route path="/games/:slug" element={<GamePage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />

@@ -5,110 +5,97 @@ function parsePositiveInt(value) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function createHttpError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 const messageController = {
   async getConversations(req, res) {
-    try {
-      const conversations = await messagesService.getConversations(req.user.id);
-      return res.json(conversations);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+    const conversations = await messagesService.getConversations(req.user.id);
+    return res.json(conversations);
   },
 
   async getMessages(req, res) {
-    try {
-      const userId = Number(req.user.id);
-      const otherId = parsePositiveInt(req.params.userId);
+    const userId = Number(req.user.id);
+    const otherId = parsePositiveInt(req.params.userId);
 
-      if (!otherId) {
-        return res.status(400).json({ error: 'Invalid userId' });
-      }
-
-      const canAccess = await messagesService.areFriends(userId, otherId);
-      if (!canAccess) {
-        return res.status(403).json({ error: 'You are not friends with this user' });
-      }
-
-      const messages = await messagesService.getMessages(userId, otherId);
-      res.json(messages);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (!otherId) {
+      throw createHttpError(400, 'Invalid userId');
     }
+
+    const canAccess = await messagesService.areFriends(userId, otherId);
+    if (!canAccess) {
+      throw createHttpError(403, 'You are not friends with this user');
+    }
+
+    const messages = await messagesService.getMessages(userId, otherId);
+    res.json(messages);
   },
 
   async sendMessage(req, res) {
-    try {
-      const userId = Number(req.user.id);
-      const receiverId = parsePositiveInt(req.body.receiver_id);
-      const { content } = req.body;
+    const userId = Number(req.user.id);
+    const receiverId = parsePositiveInt(req.body.receiver_id);
+    const { content } = req.body;
 
-      if (!receiverId || typeof content !== 'string' || !content.trim()) {
-        return res.status(400).json({ error: 'receiver_id and content are required' });
-      }
-
-      if (receiverId === userId) {
-        return res.status(400).json({ error: 'Cannot send message to yourself' });
-      }
-
-      if (!(await messagesService.areFriends(userId, receiverId))) {
-        return res.status(403).json({ error: 'Can only send messages to accepted friends' });
-      }
-
-      const message = await messagesService.createMessage(userId, receiverId, content);
-      res.status(201).json(message);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (!receiverId || typeof content !== 'string' || !content.trim()) {
+      throw createHttpError(400, 'receiver_id and content are required');
     }
+
+    if (receiverId === userId) {
+      throw createHttpError(400, 'Cannot send message to yourself');
+    }
+
+    if (!(await messagesService.areFriends(userId, receiverId))) {
+      throw createHttpError(403, 'Can only send messages to accepted friends');
+    }
+
+    const message = await messagesService.createMessage(userId, receiverId, content);
+    res.status(201).json(message);
   },
 
   async editMessage(req, res) {
-    try {
-      const messageId = parsePositiveInt(req.params.id);
-      const { content } = req.body;
+    const messageId = parsePositiveInt(req.params.id);
+    const { content } = req.body;
 
-      if (!messageId || typeof content !== 'string' || !content.trim()) {
-        return res.status(400).json({ error: 'message id and content are required' });
-      }
-
-      const message = await messagesService.getMessageById(messageId);
-
-      if (!message) {
-        return res.status(404).json({ error: 'Message not found' });
-      }
-
-      if (Number(message.sender_id) !== Number(req.user.id)) {
-        return res.status(403).json({ error: 'Not authorized to edit this message' });
-      }
-
-      await messagesService.updateMessageContent(messageId, content);
-      res.json({ message: 'Message updated' });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (!messageId || typeof content !== 'string' || !content.trim()) {
+      throw createHttpError(400, 'message id and content are required');
     }
+
+    const message = await messagesService.getMessageById(messageId);
+
+    if (!message) {
+      throw createHttpError(404, 'Message not found');
+    }
+
+    if (Number(message.sender_id) !== Number(req.user.id)) {
+      throw createHttpError(403, 'Not authorized to edit this message');
+    }
+
+    await messagesService.updateMessageContent(messageId, content);
+    res.json({ message: 'Message updated' });
   },
 
   async deleteMessage(req, res) {
-    try {
-      const messageId = parsePositiveInt(req.params.id);
-      if (!messageId) {
-        return res.status(400).json({ error: 'Invalid message id' });
-      }
+    const messageId = parsePositiveInt(req.params.id);
 
-      const message = await messagesService.getMessageById(messageId);
-
-      if (!message) {
-        return res.status(404).json({ error: 'Message not found' });
-      }
-
-      if (Number(message.sender_id) !== Number(req.user.id)) {
-        return res.status(403).json({ error: 'Not authorized to delete this message' });
-      }
-
-      await messagesService.deleteMessage(messageId);
-      res.json({ message: 'Message deleted' });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (!messageId) {
+      throw createHttpError(400, 'Invalid message id');
     }
+
+    const message = await messagesService.getMessageById(messageId);
+
+    if (!message) {
+      throw createHttpError(404, 'Message not found');
+    }
+
+    if (Number(message.sender_id) !== Number(req.user.id)) {
+      throw createHttpError(403, 'Not authorized to delete this message');
+    }
+
+    await messagesService.deleteMessage(messageId);
+    res.json({ message: 'Message deleted' });
   },
 };
 

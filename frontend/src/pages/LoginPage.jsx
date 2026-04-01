@@ -41,14 +41,11 @@ export default function LoginPage() {
           <div>
             <span className="auth-badge">Sign In</span>
             <h1>Đăng nhập tài khoản</h1>
-            <p className="auth-subtitle">
-              Đăng nhập để truy cập profile, lưu trạng thái người dùng và tiếp tục làm việc trên Board Game Project.
-            </p>
           </div>
 
           <div className="auth-helper-card">
             <strong>Vào nhanh</strong>
-            <p>Bạn có thể dùng username hoặc email để đăng nhập, sau đó hệ thống sẽ tự tải lại thông tin từ token.</p>
+            <p>Bạn có thể dùng username hoặc email để đăng nhập</p>
           </div>
         </div>
 
@@ -97,18 +94,6 @@ export default function LoginPage() {
             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
-
-        <div className="auth-tips">
-          <div className="tip-item">
-            <strong>Mẹo nhỏ</strong>
-            <p>Nếu vừa đăng ký xong, bạn có thể đăng nhập ngay với thông tin vừa tạo.</p>
-          </div>
-          <div className="tip-item">
-            <strong>Session</strong>
-            <p>Trang sẽ tự động giữ phiên đăng nhập bằng token cho tới khi bạn logout.</p>
-          </div>
-        </div>
-
         <div className="auth-footer">
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </div>

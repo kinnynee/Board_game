@@ -30,7 +30,7 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(payload?.message || 'Request failed.');
+    throw new Error(payload?.message || payload?.error || 'Request failed.');
   }
 
   return payload;
@@ -62,10 +62,34 @@ export const api = {
     const params = new URLSearchParams({ limit: String(limit) });
     return request(`/games/scores/me?${params.toString()}`);
   },
+  getGames() {
+    return request('/games');
+  },
+  getGame(slug) {
+    return request(`/games/${slug}`);
+  },
+  postRating(slug, rating, comment) {
+    return request(`/games/${slug}/ratings`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, comment }),
+    });
+  },
   updateProfile(profileData) {
     return request('/users/me', {
       method: 'PUT',
       body: JSON.stringify(profileData),
+    });
+  },
+  getConversations() {
+    return request('/messages/conversations');
+  },
+  getMessages(userId) {
+    return request(`/messages/${userId}`);
+  },
+  sendMessage(receiverId, content) {
+    return request('/messages', {
+      method: 'POST',
+      body: JSON.stringify({ receiver_id: receiverId, content }),
     });
   },
 };

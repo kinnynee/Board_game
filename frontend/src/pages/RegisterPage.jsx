@@ -103,15 +103,10 @@ export default function RegisterPage() {
           <div>
             <span className="auth-badge">Register</span>
             <h1>Tạo tài khoản mới</h1>
-            <p className="auth-subtitle">
-              Form đăng ký này dùng controlled inputs với validation cơ bản, nhưng đã được chỉnh lại để dữ liệu gửi lên
-              gọn và rõ hơn.
-            </p>
           </div>
 
           <div className="auth-helper-card">
-            <strong>Cần gì để bắt đầu?</strong>
-            <p>Chỉ cần username hợp lệ, email đúng định dạng và mật khẩu khớp nhau là bạn có thể vào app ngay.</p>
+            <p>username hợp lệ, email đúng định dạng và mật khẩu khớp nhau.</p>
           </div>
         </div>
 
@@ -200,7 +195,7 @@ export default function RegisterPage() {
           </div>
           <div className="tip-item">
             <strong>Mật khẩu</strong>
-            <p>Hãy chọn mật khẩu dễ nhớ nhưng không quá ngắn, vì đây là thông tin bạn sẽ dùng để đăng nhập lại.</p>
+            <p>Đặt mật khẩu dễ nhớ nhưng không quá ngắn.</p>
           </div>
         </div>
 
