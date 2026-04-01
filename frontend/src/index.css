@@ -1,5 +1,4 @@
 :root {
-<<<<<<< HEAD
   color-scheme: light;
   --bg: #f4ede3;
   --bg-deep: #f8f3ec;
@@ -18,20 +17,12 @@
   --sans: Aptos, 'Trebuchet MS', 'Segoe UI', sans-serif;
   --mono: 'Cascadia Code', Consolas, monospace;
   font: 16px/1.55 var(--sans);
-=======
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #163127;
-  background: #f5efe3;
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-<<<<<<< HEAD
 [data-theme='dark'] {
   color-scheme: dark;
   --bg: #12171b;
@@ -50,25 +41,15 @@
   --card-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
 }
 
-=======
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 * {
   box-sizing: border-box;
 }
 
-<<<<<<< HEAD
 html {
-=======
-html,
-body,
-#root {
-  margin: 0;
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
   min-height: 100%;
 }
 
 body {
-<<<<<<< HEAD
   margin: 0;
   min-height: 100vh;
   color: var(--text-strong);
@@ -76,22 +57,14 @@ body {
     radial-gradient(circle at top left, rgba(255, 193, 124, 0.36), transparent 32%),
     radial-gradient(circle at bottom right, rgba(30, 129, 117, 0.18), transparent 26%),
     linear-gradient(180deg, var(--bg), var(--bg-deep));
-=======
-  min-width: 320px;
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 }
 
 a {
   color: inherit;
-<<<<<<< HEAD
-=======
-  text-decoration: none;
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 }
 
 button,
 input,
-<<<<<<< HEAD
 textarea {
   font: inherit;
 }
@@ -125,10 +98,3 @@ code {
   color: var(--accent-forest);
   font-family: var(--mono);
 }
-=======
-textarea,
-select {
-  font: inherit;
-}
-
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
