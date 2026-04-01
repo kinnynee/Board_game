@@ -28,48 +28,68 @@ export default function LoginPage() {
   return (
     <section className="auth-page">
       <div className="auth-card">
-        <span className="auth-badge">Sign In</span>
-        <h1>Dang nhap tai khoan</h1>
-        <p className="auth-subtitle">
-          Dang nhap de truy cap profile va tiep tuc cap nhat do an theo luong da hoc.
-        </p>
+        <div className="auth-header">
+          <div>
+            <span className="auth-badge">Sign In</span>
+            <h1>Đăng nhập tài khoản</h1>
+            <p className="auth-subtitle">
+              Đăng nhập để truy cập profile, lưu trạng thái người dùng, và tiếp tục làm việc trên Board Game Project.
+            </p>
+          </div>
+
+          <div className="auth-helper-card">
+            <strong>Vào nhanh</strong>
+            <p>Bạn có thể dùng username hoặc email để đăng nhập, sau đó hệ thống sẽ tải lại thông tin qua token.</p>
+          </div>
+        </div>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="login-username">Username hoac email</label>
+            <label className="form-label" htmlFor="login-username">Username hoặc email</label>
             <input
               id="login-username"
               className="form-input"
               type="text"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
-              placeholder="Nhap username hoac email"
+              placeholder="Nhập username hoặc email"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="login-password">Mat khau</label>
+            <label className="form-label" htmlFor="login-password">Mật khẩu</label>
             <input
               id="login-password"
               className="form-input"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Nhap mat khau"
+              placeholder="Nhập mật khẩu"
               required
             />
           </div>
 
           <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Dang dang nhap...' : 'Dang nhap'}
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
 
+        <div className="auth-tips">
+          <div className="tip-item">
+            <strong>Mẹo nhỏ</strong>
+            <p>Nếu vừa đăng ký xong, bạn có thể đăng nhập ngay với thông tin vừa tạo.</p>
+          </div>
+          <div className="tip-item">
+            <strong>Session</strong>
+            <p>Trang sẽ tự động giữ phiên đăng nhập bằng token cho tới khi bạn logout.</p>
+          </div>
+        </div>
+
         <div className="auth-footer">
-          Chua co tai khoan? <Link to="/register">Dang ky ngay</Link>
+          Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </div>
       </div>
     </section>
