@@ -1,12 +1,17 @@
-const router = require('express').Router();
-const friendController = require('../controllers/friendController');
-const { auth } = require('../middleware/auth');
+const express = require('express');
 
-router.get('/', auth, friendController.getFriends);
-router.get('/pending', auth, friendController.getPendingRequests);
-router.post('/request', auth, friendController.sendRequest);
-router.put('/respond/:id', auth, friendController.respondRequest);
-router.put('/:id', auth, friendController.updateFriend);
-router.delete('/:id', auth, friendController.removeFriend);
+const asyncHandler = require('../utils/asyncHandler');
+const friendController = require('../controllers/friendController');
+const { requireAuth } = require('../middleware/auth');
+
+const router = express.Router();
+
+router.use(requireAuth);
+router.get('/', asyncHandler(friendController.getFriends));
+router.get('/pending', asyncHandler(friendController.getPendingRequests));
+router.post('/request', asyncHandler(friendController.sendRequest));
+router.put('/respond/:id', asyncHandler(friendController.respondRequest));
+router.put('/:id', asyncHandler(friendController.updateFriend));
+router.delete('/:id', asyncHandler(friendController.removeFriend));
 
 module.exports = router;
