@@ -1,41 +1,39 @@
-require("dotenv").config();
+require('dotenv').config();
 
-const cors = require("cors");
-const express = require("express");
-<<<<<<< HEAD
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes");
-=======
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
+const express = require('express');
+const cors = require('cors');
+
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const gameRoutes = require('./routes/gameRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
-const port = Number(process.env.PORT || 5000);
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Board game backend is running",
-    endpoints: {
-      auth: "/api/auth",
-      users: "/api/users",
-    },
-  });
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true });
 });
 
-<<<<<<< HEAD
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-=======
-app.use("/api/achievements", achievementRoutes);
-app.use("/api/rankings", rankingRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/games', gameRoutes);
+app.use('/api/games', ratingRoutes);
+app.use('/api/admin', adminRoutes);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found.' });
 });
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
+
+app.use((error, req, res, next) => {
+  console.error(error);
+  res.status(500).json({ message: 'Internal server error.' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});

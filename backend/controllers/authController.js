@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -95,22 +94,6 @@ async function login(req, res) {
 
 async function getMe(req, res) {
   return res.json(serializeUser(req.user, { includeEmail: true, includeStatus: true }));
-=======
-const authService = require('../services/authService');
-
-async function register(req, res) {
-  const payload = await authService.registerUser(req.body);
-  return res.status(201).json(payload);
-}
-
-async function login(req, res) {
-  const payload = await authService.loginUser(req.body);
-  return res.json(payload);
-}
-
-async function getMe(req, res) {
-  return res.json(authService.getCurrentUser(req.user));
->>>>>>> 06170f5a5e6b6979cccd2b4ff1fd1ea4a02eb102
 }
 
 module.exports = {
