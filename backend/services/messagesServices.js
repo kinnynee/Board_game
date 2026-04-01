@@ -74,13 +74,6 @@ async function getMessages(userId, otherId) {
   const normalizedUserId = normalizeUserId(userId);
   const normalizedOtherId = normalizeUserId(otherId);
 
-  const messages = await db('messages')
-    .where(function () {
-      this.where({ sender_id: normalizedUserId, receiver_id: normalizedOtherId })
-        .orWhere({ sender_id: normalizedOtherId, receiver_id: normalizedUserId });
-    })
-    .orderBy('created_at', 'asc');
-
   await db('messages')
     .where({
       sender_id: normalizedOtherId,
@@ -89,7 +82,12 @@ async function getMessages(userId, otherId) {
     })
     .update({ is_read: true });
 
-  return messages;
+  return db('messages')
+    .where(function () {
+      this.where({ sender_id: normalizedUserId, receiver_id: normalizedOtherId })
+        .orWhere({ sender_id: normalizedOtherId, receiver_id: normalizedUserId });
+    })
+    .orderBy('created_at', 'asc');
 }
 
 async function createMessage(senderId, receiverId, content) {
@@ -105,10 +103,8 @@ async function createMessage(senderId, receiverId, content) {
   return db('messages').where({ id }).first();
 }
 
-async function getOwnedMessage(messageId, userId) {
-  return db('messages')
-    .where({ id: Number(messageId), sender_id: normalizeUserId(userId) })
-    .first();
+async function getMessageById(messageId) {
+  return db('messages').where({ id: Number(messageId) }).first();
 }
 
 async function updateMessageContent(messageId, content) {
@@ -126,7 +122,7 @@ module.exports = {
   getConversations,
   getMessages,
   createMessage,
-  getOwnedMessage,
+  getMessageById,
   updateMessageContent,
   deleteMessage,
 };

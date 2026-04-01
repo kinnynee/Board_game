@@ -118,11 +118,27 @@ async function getPendingRequestForRecipient(requestId, userId) {
 }
 
 async function acceptFriendRequest(requestId) {
-  await db('friends').where({ id: Number(requestId) }).update({ status: 'accepted' });
+  const updatedRows = await db('friends')
+    .where({ id: Number(requestId), status: 'pending' })
+    .update({ status: 'accepted' });
+
+  if (!updatedRows) {
+    const error = new Error('Friend request could not be accepted because it was already processed');
+    error.status = 409;
+    throw error;
+  }
 }
 
 async function rejectFriendRequest(requestId) {
-  await db('friends').where({ id: Number(requestId) }).delete();
+  const deletedRows = await db('friends')
+    .where({ id: Number(requestId), status: 'pending' })
+    .delete();
+
+  if (!deletedRows) {
+    const error = new Error('Friend request could not be rejected because it was already processed');
+    error.status = 409;
+    throw error;
+  }
 }
 
 async function getFriendshipById(friendshipId) {

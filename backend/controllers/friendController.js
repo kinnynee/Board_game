@@ -86,7 +86,7 @@ const friendController = {
       await friendsService.rejectFriendRequest(requestId);
       res.json({ message: 'Friend request rejected' });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      res.status(err.status || 500).json({ error: err.message });
     }
   },
 

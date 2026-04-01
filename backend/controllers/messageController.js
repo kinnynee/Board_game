@@ -70,10 +70,14 @@ const messageController = {
         return res.status(400).json({ error: 'message id and content are required' });
       }
 
-      const message = await messagesService.getOwnedMessage(messageId, req.user.id);
+      const message = await messagesService.getMessageById(messageId);
 
       if (!message) {
-        return res.status(404).json({ error: 'Message not found or not authorized' });
+        return res.status(404).json({ error: 'Message not found' });
+      }
+
+      if (Number(message.sender_id) !== Number(req.user.id)) {
+        return res.status(403).json({ error: 'Not authorized to edit this message' });
       }
 
       await messagesService.updateMessageContent(messageId, content);
@@ -90,10 +94,14 @@ const messageController = {
         return res.status(400).json({ error: 'Invalid message id' });
       }
 
-      const message = await messagesService.getOwnedMessage(messageId, req.user.id);
+      const message = await messagesService.getMessageById(messageId);
 
       if (!message) {
-        return res.status(404).json({ error: 'Message not found or not authorized' });
+        return res.status(404).json({ error: 'Message not found' });
+      }
+
+      if (Number(message.sender_id) !== Number(req.user.id)) {
+        return res.status(403).json({ error: 'Not authorized to delete this message' });
       }
 
       await messagesService.deleteMessage(messageId);
