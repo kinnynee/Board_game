@@ -1,4 +1,4 @@
-const gameService = require('../services/gameService');
+﻿const gameService = require('../services/gameService');
 
 async function listGames(req, res) {
   const games = await gameService.listGames();
@@ -6,8 +6,12 @@ async function listGames(req, res) {
 }
 
 async function getGameDetail(req, res) {
-  const gameDetail = await gameService.getGameDetail(req.params.slug);
-  return res.json(gameDetail);
+  try {
+    const gameDetail = await gameService.getGameDetail(req.params.slug);
+    return res.status(200).json({ success: true, data: gameDetail });
+  } catch (err) {
+    return res.status(404).json({ success: false, message: err.message });
+  }
 }
 
 async function getMyScores(req, res) {
@@ -37,4 +41,5 @@ module.exports = {
   getMySaves,
   saveGame,
   recordScore,
-};
+}
+

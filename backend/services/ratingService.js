@@ -1,4 +1,4 @@
-const db = require('../db');
+﻿const db = require('../db');
 const createHttpError = require('../utils/httpError');
 
 async function findGameBySlug(slug) {
@@ -18,7 +18,7 @@ async function listRatings(slug) {
 
   return db('ratings')
     .join('users', 'ratings.user_id', 'users.id')
-    .where({ game_id: game.id })
+    .where({ game_slug: game.slug })
     .select(
       'ratings.id',
       'ratings.rating',
@@ -58,11 +58,11 @@ async function upsertRating(userId, slug, body) {
   const [savedRating] = await db('ratings')
     .insert({
       user_id: userId,
-      game_id: game.id,
+      game_slug: game.slug,
       rating: payload.rating,
       comment: payload.comment,
     })
-    .onConflict(['user_id', 'game_id'])
+    .onConflict(['user_id', 'game_slug'])
     .merge({
       rating: payload.rating,
       comment: payload.comment,
@@ -73,7 +73,22 @@ async function upsertRating(userId, slug, body) {
   return savedRating;
 }
 
+
+// ThÃªm Aggregate tÃ­nh Ä‘iá»ƒm trung bÃ¬nh (SQL Engine)
+const getRatingStats = async (game_slug) => {
+  const result = await db('ratings')
+    .where({ game_slug })
+    .select(
+      db.raw('COUNT(*) as total_reviews'),
+      db.raw('ROUND(AVG(rating)::numeric, 1) as average_score')
+    )
+    .first();
+  return result;
+};
+
 module.exports = {
+  getRatingStats,
   listRatings,
   upsertRating,
-};
+}
+

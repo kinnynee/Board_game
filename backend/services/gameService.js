@@ -1,4 +1,4 @@
-const db = require('../db');
+﻿const db = require('../db');
 const createHttpError = require('../utils/httpError');
 const { serializeGame } = require('../utils/serializers');
 const { parsePositiveInt } = require('../utils/validation');
@@ -15,14 +15,14 @@ async function listGames() {
   const [games, ratingRows] = await Promise.all([
     db('games').select('*').orderBy('name', 'asc'),
     db('ratings')
-      .select('game_id')
+      .select('game_slug')
       .count('* as rating_count')
       .avg('rating as average_rating')
-      .groupBy('game_id'),
+      .groupBy('game_slug'),
   ]);
 
   const ratingMap = ratingRows.reduce((acc, row) => {
-    acc[row.game_id] = {
+    acc[row.game_slug] = {
       rating_count: Number(row.rating_count || 0),
       average_rating: row.average_rating !== null ? Number(row.average_rating) : null,
     };
@@ -31,7 +31,7 @@ async function listGames() {
 
   return games.map((game) => serializeGame({
     ...game,
-    ...(ratingMap[game.id] || {}),
+    ...(ratingMap[game.slug] || {}),
   }));
 }
 
@@ -44,18 +44,18 @@ async function getGameDetail(slug) {
 
   const [ratingStats, topScores, recentRatings] = await Promise.all([
     db('ratings')
-      .where({ game_id: game.id })
+      .where({ game_slug: game.slug })
       .count('* as rating_count')
       .avg('rating as average_rating')
       .first(),
     db('game_scores')
       .join('users', 'game_scores.user_id', 'users.id')
-      .where({ game_id: game.id })
+      .where({ game_slug: game.slug })
       .select(
         'game_scores.id',
         'game_scores.score',
         'game_scores.result',
-        'game_scores.duration_seconds',
+        'game_scores.duration as duration_seconds',
         'game_scores.created_at',
         'users.username',
         'users.display_name',
@@ -65,7 +65,7 @@ async function getGameDetail(slug) {
       .limit(10),
     db('ratings')
       .join('users', 'ratings.user_id', 'users.id')
-      .where({ game_id: game.id })
+      .where({ game_slug: game.slug })
       .select(
         'ratings.id',
         'ratings.rating',
@@ -96,14 +96,14 @@ async function getMyScores(userId, query = {}) {
   const limit = Math.min(parsePositiveInt(query.limit, 20), 100);
 
   return db('game_scores')
-    .join('games', 'game_scores.game_id', 'games.id')
+    .join('games', 'game_scores.game_slug', 'games.slug')
     .where('game_scores.user_id', userId)
     .select(
       'game_scores.id',
       'game_scores.score',
       'game_scores.result',
-      'game_scores.duration_seconds',
-      'game_scores.metadata_json',
+      'game_scores.duration as duration_seconds',
+      db.raw('NULL as metadata_json'),
       'game_scores.created_at',
       'games.slug as game_slug',
       'games.name as game_name',
@@ -121,11 +121,17 @@ async function getMySaves(userId, slug) {
 
   return db('game_saves')
     .where({
-      game_id: game.id,
+      game_slug: game.slug,
       user_id: userId,
     })
     .select('*')
-    .orderBy('updated_at', 'desc');
+    .orderBy('updated_at', 'desc')
+    .then((rows) => rows.map((row) => ({
+      ...row,
+      state_json: typeof row.state_json === 'string'
+        ? JSON.parse(row.state_json)
+        : row.state_json,
+    })));
 }
 
 function normalizeSavePayload(body = {}) {
@@ -157,15 +163,19 @@ async function saveGame(userId, slug, body) {
   const [saved] = await db('game_saves')
     .insert({
       user_id: userId,
-      game_id: game.id,
+      game_slug: game.slug,
       save_name: payload.save_name,
-      state_json: payload.state_json,
+      state_json: JSON.stringify(payload.state_json),
       score: payload.score,
-      duration_seconds: payload.duration_seconds,
     })
     .returning('*');
 
-  return saved;
+  return {
+    ...saved,
+    state_json: typeof saved.state_json === 'string'
+      ? JSON.parse(saved.state_json)
+      : saved.state_json,
+  };
 }
 
 function normalizeScorePayload(body = {}) {
@@ -195,11 +205,10 @@ async function recordScore(userId, slug, body) {
   const [createdScore] = await db('game_scores')
     .insert({
       user_id: userId,
-      game_id: game.id,
+      game_slug: game.slug,
       score: payload.score,
       result: payload.result,
-      duration_seconds: payload.duration_seconds,
-      metadata_json: payload.metadata_json,
+      duration: payload.duration_seconds,
     })
     .returning('*');
 
@@ -214,4 +223,5 @@ module.exports = {
   getMySaves,
   saveGame,
   recordScore,
-};
+}
+
