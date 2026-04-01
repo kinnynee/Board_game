@@ -52,8 +52,15 @@ export const api = {
   getMe() {
     return request('/auth/me');
   },
+  getOwnProfile() {
+    return request('/users/me');
+  },
   getProfile(id) {
     return request(`/users/${id}`);
+  },
+  getMyScores(limit = 20) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    return request(`/games/scores/me?${params.toString()}`);
   },
   updateProfile(profileData) {
     return request('/users/me', {
