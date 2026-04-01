@@ -1,5 +1,10 @@
 const messagesService = require('../services/messagesServices');
 
+function parsePositiveInt(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
 const messageController = {
   async getConversations(req, res) {
     try {
@@ -12,10 +17,10 @@ const messageController = {
 
   async getMessages(req, res) {
     try {
-      const userId = req.user.id;
-      const otherId = Number(req.params.userId);
+      const userId = Number(req.user.id);
+      const otherId = parsePositiveInt(req.params.userId);
 
-      if (Number.isNaN(otherId)) {
+      if (!otherId) {
         return res.status(400).json({ error: 'Invalid userId' });
       }
 
@@ -33,18 +38,23 @@ const messageController = {
 
   async sendMessage(req, res) {
     try {
-      const userId = req.user.id;
-      const { receiver_id, content } = req.body;
+      const userId = Number(req.user.id);
+      const receiverId = parsePositiveInt(req.body.receiver_id);
+      const { content } = req.body;
 
-      if (typeof receiver_id !== 'number' || typeof content !== 'string' || !content.trim()) {
+      if (!receiverId || typeof content !== 'string' || !content.trim()) {
         return res.status(400).json({ error: 'receiver_id and content are required' });
       }
 
-      if (!(await messagesService.areFriends(userId, receiver_id))) {
+      if (receiverId === userId) {
+        return res.status(400).json({ error: 'Cannot send message to yourself' });
+      }
+
+      if (!(await messagesService.areFriends(userId, receiverId))) {
         return res.status(403).json({ error: 'Can only send messages to accepted friends' });
       }
 
-      const message = await messagesService.createMessage(userId, receiver_id, content);
+      const message = await messagesService.createMessage(userId, receiverId, content);
       res.status(201).json(message);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -53,10 +63,10 @@ const messageController = {
 
   async editMessage(req, res) {
     try {
-      const messageId = Number(req.params.id);
+      const messageId = parsePositiveInt(req.params.id);
       const { content } = req.body;
 
-      if (Number.isNaN(messageId) || typeof content !== 'string' || !content.trim()) {
+      if (!messageId || typeof content !== 'string' || !content.trim()) {
         return res.status(400).json({ error: 'message id and content are required' });
       }
 
@@ -75,8 +85,8 @@ const messageController = {
 
   async deleteMessage(req, res) {
     try {
-      const messageId = Number(req.params.id);
-      if (Number.isNaN(messageId)) {
+      const messageId = parsePositiveInt(req.params.id);
+      if (!messageId) {
         return res.status(400).json({ error: 'Invalid message id' });
       }
 

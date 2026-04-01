@@ -1,5 +1,15 @@
 const friendsService = require('../services/friendsService');
 
+function parsePositiveInt(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function isFriendshipParticipant(friendship, userId) {
+  const normalizedUserId = Number(userId);
+  return Number(friendship.user_id) === normalizedUserId || Number(friendship.friend_id) === normalizedUserId;
+}
+
 const friendController = {
   async getFriends(req, res) {
     try {
@@ -21,17 +31,17 @@ const friendController = {
 
   async sendRequest(req, res) {
     try {
-      const { friend_id } = req.body;
-      const userId = req.user.id;
+      const userId = Number(req.user.id);
+      const friendId = parsePositiveInt(req.body.friend_id);
 
-      if (typeof friend_id !== 'number') {
+      if (!friendId) {
         return res.status(400).json({ error: 'friend_id is required and must be a number' });
       }
-      if (friend_id === userId) {
+      if (friendId === userId) {
         return res.status(400).json({ error: 'Cannot add yourself as friend' });
       }
 
-      const existing = await friendsService.findFriendshipBetweenUsers(userId, friend_id);
+      const existing = await friendsService.findFriendshipBetweenUsers(userId, friendId);
 
       if (existing) {
         if (existing.status === 'pending') {
@@ -42,7 +52,7 @@ const friendController = {
         }
       }
 
-      const id = await friendsService.createFriendRequest(userId, friend_id);
+      const id = await friendsService.createFriendRequest(userId, friendId);
       res.status(201).json({ id, message: 'Friend request sent' });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -51,8 +61,13 @@ const friendController = {
 
   async respondRequest(req, res) {
     try {
-      const requestId = Number(req.params.id);
+      const requestId = parsePositiveInt(req.params.id);
       const { action } = req.body;
+
+      if (!requestId) {
+        return res.status(400).json({ error: 'Invalid friend request id' });
+      }
+
       if (!['accept', 'reject'].includes(action)) {
         return res.status(400).json({ error: 'Action must be reject or accept' });
       }
@@ -77,8 +92,12 @@ const friendController = {
 
   async updateFriend(req, res) {
     try {
-      const friendshipId = Number(req.params.id);
+      const friendshipId = parsePositiveInt(req.params.id);
       const { nickname } = req.body;
+
+      if (!friendshipId) {
+        return res.status(400).json({ error: 'Invalid friendship id' });
+      }
 
       if (typeof nickname !== 'string') {
         return res.status(400).json({ error: 'nickname must be a string' });
@@ -89,7 +108,7 @@ const friendController = {
         return res.status(404).json({ error: 'Friendship not found' });
       }
 
-      if (friendship.user_id !== req.user.id && friendship.friend_id !== req.user.id) {
+      if (!isFriendshipParticipant(friendship, req.user.id)) {
         return res.status(403).json({ error: 'Not authorized' });
       }
 
@@ -102,14 +121,19 @@ const friendController = {
 
   async removeFriend(req, res) {
     try {
-      const friendshipId = Number(req.params.id);
+      const friendshipId = parsePositiveInt(req.params.id);
+
+      if (!friendshipId) {
+        return res.status(400).json({ error: 'Invalid friendship id' });
+      }
+
       const friendship = await friendsService.getFriendshipById(friendshipId);
 
       if (!friendship) {
         return res.status(404).json({ error: 'Friendship not found' });
       }
 
-      if (friendship.user_id !== req.user.id && friendship.friend_id !== req.user.id) {
+      if (!isFriendshipParticipant(friendship, req.user.id)) {
         return res.status(403).json({ error: 'Not authorized' });
       }
 
