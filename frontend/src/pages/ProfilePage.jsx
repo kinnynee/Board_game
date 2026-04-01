@@ -1,3 +1,10 @@
+import {
+  Description,
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from '@headlessui/react';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
@@ -196,7 +203,64 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {editing ? (
+          <div className="empty-state empty-state-left">
+            <p>Mở hộp thoại chỉnh sửa để cập nhật tên hiển thị, email và bio của bạn trong một luồng tập trung hơn.</p>
+            <button className="btn btn-primary" type="button" onClick={() => setEditing(true)}>
+              Mở hộp thoại chỉnh sửa
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <section className="content-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="section-tag">Game History</p>
+            <h2>Điểm số gần đây</h2>
+          </div>
+        </div>
+
+        <p className="card-copy">
+          Đây là 8 bản ghi gần nhất được trả về từ backend, giúp bạn nhìn nhanh kết quả và thời lượng mỗi ván chơi.
+        </p>
+
+        {recentScores.length ? (
+          <div className="score-list">
+            {recentScores.map((score) => (
+              <div key={score.id} className="score-row">
+                <div>
+                  <strong>{score.game_name}</strong>
+                  <p>{formatDate(score.created_at)}</p>
+                </div>
+                <div className="score-row-meta">
+                  <strong>{score.score}</strong>
+                  <span>{score.result}</span>
+                  <span>{formatDuration(score.duration_seconds)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state empty-state-left">
+            <p>Chưa có điểm số nào. Sau khi chơi game và lưu kết quả, lịch sử sẽ hiện ở đây.</p>
+          </div>
+        )}
+      </section>
+
+      <Dialog open={editing} onClose={setEditing} className="dialog-root">
+        <DialogBackdrop className="dialog-backdrop" />
+        <div className="dialog-frame">
+          <DialogPanel className="dialog-panel">
+            <div className="dialog-header">
+              <div>
+                <p className="section-tag">Headless UI Dialog</p>
+                <DialogTitle as="h2">Chỉnh sửa profile</DialogTitle>
+                <Description className="card-copy">
+                  Mọi thay đổi sẽ được lưu trực tiếp vào tài khoản hiện tại và đồng bộ lại phần thông tin phía ngoài.
+                </Description>
+              </div>
+            </div>
+
             <form className="auth-form" onSubmit={handleSave}>
               <div className="form-group">
                 <label className="form-label" htmlFor="profile-display-name">Display name</label>
@@ -242,48 +306,9 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
-          ) : (
-            <div className="empty-state empty-state-left">
-              <p>Bật "Chỉnh sửa profile" để cập nhật tên hiển thị, email và bio của bạn.</p>
-            </div>
-          )}
-        </article>
-      </div>
-
-      <section className="content-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="section-tag">Game History</p>
-            <h2>Điểm số gần đây</h2>
-          </div>
+          </DialogPanel>
         </div>
-
-        <p className="card-copy">
-          Đây là 8 bản ghi gần nhất được trả về từ backend, giúp bạn nhìn nhanh kết quả và thời lượng mỗi ván chơi.
-        </p>
-
-        {recentScores.length ? (
-          <div className="score-list">
-            {recentScores.map((score) => (
-              <div key={score.id} className="score-row">
-                <div>
-                  <strong>{score.game_name}</strong>
-                  <p>{formatDate(score.created_at)}</p>
-                </div>
-                <div className="score-row-meta">
-                  <strong>{score.score}</strong>
-                  <span>{score.result}</span>
-                  <span>{formatDuration(score.duration_seconds)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state empty-state-left">
-            <p>Chưa có điểm số nào. Sau khi chơi game và lưu kết quả, lịch sử sẽ hiện ở đây.</p>
-          </div>
-        )}
-      </section>
+      </Dialog>
     </div>
   );
 }

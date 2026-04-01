@@ -1,3 +1,12 @@
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from '@headlessui/react';
 import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { useTheme } from './contexts/ThemeContext';
@@ -121,37 +130,79 @@ function AppLayout() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <Link className="brand" to="/">
-          <span className="brand-mark">BG</span>
-          <div>
-            <strong>Board Game Project</strong>
-            <p>Auth and profile module</p>
-          </div>
-        </Link>
+      <Disclosure as="header" className="topbar-shell">
+        {({ open }) => (
+          <>
+            <div className="topbar">
+              <Link className="brand" to="/">
+                <span className="brand-mark">BG</span>
+                <div>
+                  <strong>Board Game Project</strong>
+                  <p>Auth and profile module</p>
+                </div>
+              </Link>
 
-        <nav className="topbar-actions">
-          <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
+              <nav className="topbar-actions topbar-actions-desktop">
+                <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
 
-          <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
-            {darkMode ? 'Light' : 'Dark'}
-          </button>
+                <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
+                  {darkMode ? 'Light mode' : 'Dark mode'}
+                </button>
 
-          {user ? (
-            <>
-              <Link className="btn btn-secondary btn-compact" to="/profile">Profile</Link>
-              <button className="btn btn-primary btn-compact" type="button" onClick={logout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link className="btn btn-secondary btn-compact" to="/login">Đăng nhập</Link>
-              <Link className="btn btn-primary btn-compact" to="/register">Đăng ký</Link>
-            </>
-          )}
-        </nav>
-      </header>
+                {user ? (
+                  <Menu as="div" className="account-menu">
+                    <MenuButton className="btn btn-primary btn-compact">
+                      {user.display_name || user.username}
+                    </MenuButton>
+                    <MenuItems className="menu-items" anchor="bottom end">
+                      <MenuItem>
+                        <Link className="menu-link" to="/profile">Hồ sơ của tôi</Link>
+                      </MenuItem>
+                      <MenuItem>
+                        <button className="menu-link menu-link-button" type="button" onClick={logout}>
+                          Đăng xuất
+                        </button>
+                      </MenuItem>
+                    </MenuItems>
+                  </Menu>
+                ) : (
+                  <>
+                    <Link className="btn btn-secondary btn-compact" to="/login">Đăng nhập</Link>
+                    <Link className="btn btn-primary btn-compact" to="/register">Đăng ký</Link>
+                  </>
+                )}
+              </nav>
+
+              <DisclosureButton className="btn btn-secondary btn-compact nav-toggle">
+                {open ? 'Đóng menu' : 'Mở menu'}
+              </DisclosureButton>
+            </div>
+
+            <DisclosurePanel className="mobile-panel">
+              <div className="mobile-panel-inner">
+                <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
+                <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
+                  {darkMode ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+                </button>
+
+                {user ? (
+                  <>
+                    <Link className="btn btn-secondary btn-compact" to="/profile">Hồ sơ</Link>
+                    <button className="btn btn-primary btn-compact" type="button" onClick={logout}>
+                      Đăng xuất
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link className="btn btn-secondary btn-compact" to="/login">Đăng nhập</Link>
+                    <Link className="btn btn-primary btn-compact" to="/register">Đăng ký</Link>
+                  </>
+                )}
+              </div>
+            </DisclosurePanel>
+          </>
+        )}
+      </Disclosure>
 
       <main className="page-frame">
         <Outlet />
