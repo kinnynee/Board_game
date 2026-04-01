@@ -248,13 +248,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="profile-note">
-            <strong>Tóm tắt nhanh</strong>
-            <p>
-              Profile này đang phục vụ cho luồng auth và cập nhật thông tin. Sau khi lưu thành công, session hiện tại
-              cũng sẽ được đồng bộ ngay.
-            </p>
-          </div>
+        
         </article>
 
         <article className="profile-card">
