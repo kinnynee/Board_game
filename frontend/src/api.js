@@ -80,16 +80,5 @@ export const api = {
       body: JSON.stringify(profileData),
     });
   },
-  getConversations() {
-    return request('/messages/conversations');
-  },
-  getMessages(userId) {
-    return request(`/messages/${userId}`);
-  },
-  sendMessage(receiverId, content) {
-    return request('/messages', {
-      method: 'POST',
-      body: JSON.stringify({ receiver_id: receiverId, content }),
-    });
-  },
 };
+

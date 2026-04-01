@@ -13,6 +13,9 @@ import { useTheme } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminGames from './pages/AdminGames';
 import './App.css';
 
 function ProtectedRoute() {
@@ -31,6 +34,27 @@ function ProtectedRoute() {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+}
+
+function AdminRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="app-shell">
+        <div className="page-loader">
+          <div className="spinner" />
+          <p>Dang kiem tra quyen admin...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
@@ -129,87 +153,6 @@ function AppLayout() {
 
   return (
     <div className="app-shell">
-      <Disclosure as="header" className="topbar-shell">
-        {({ open }) => (
-          <>
-            <div className="topbar">
-              <Link className="brand" to="/">
-                <span className="brand-mark">BG</span>
-                <div>
-                  <strong>Board Game Project</strong>
-                  <p>Play & Connect</p>
-                </div>
-              </Link>
-
-              <nav className="topbar-actions topbar-actions-desktop">
-                <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
-              <Link className="btn btn-secondary btn-compact" to="/games">Games</Link>
-
-                <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
-                  {darkMode ? 'Light mode' : 'Dark mode'}
-                </button>
-
-                {user ? (
-                  <Menu as="div" className="account-menu">
-                    <MenuButton className="btn btn-primary btn-compact">
-                      {user.display_name || user.username}
-                    </MenuButton>
-                    <MenuItems className="menu-items" anchor="bottom end">
-                      <MenuItem>
-                        <Link className="menu-link" to="/profile">Hồ sơ của tôi</Link>
-                      </MenuItem>
-                      <MenuItem>
-                        <Link className="menu-link" to="/rankings">🏆 Xếp Hạng</Link>
-                      </MenuItem>
-                      <MenuItem>
-                        <Link className="menu-link" to="/achievements">🌟 Thành Tựu</Link>
-                      </MenuItem>
-                      <MenuItem>
-                        <button className="menu-link menu-link-button" type="button" onClick={logout}>
-                          Đăng xuất
-                        </button>
-                      </MenuItem>
-                    </MenuItems>
-                  </Menu>
-                ) : (
-                  <>
-                    <Link className="btn btn-secondary btn-compact" to="/login">Đăng nhập</Link>
-                    <Link className="btn btn-primary btn-compact" to="/register">Đăng ký</Link>
-                  </>
-                )}
-              </nav>
-
-              <DisclosureButton className="btn btn-secondary btn-compact nav-toggle">
-                {open ? 'Đóng menu' : 'Mở menu'}
-              </DisclosureButton>
-            </div>
-
-            <DisclosurePanel className="mobile-panel">
-              <div className="mobile-panel-inner">
-                <Link className="btn btn-secondary btn-compact" to="/">Home</Link>
-                <button className="btn btn-secondary btn-compact" type="button" onClick={toggleDarkMode}>
-                  {darkMode ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-                </button>
-
-                {user ? (
-                  <>
-                    <Link className="btn btn-secondary btn-compact" to="/profile">Hồ sơ</Link>
-                    <button className="btn btn-primary btn-compact" type="button" onClick={logout}>
-                      Đăng xuất
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link className="btn btn-secondary btn-compact" to="/login">Đăng nhập</Link>
-                    <Link className="btn btn-primary btn-compact" to="/register">Đăng ký</Link>
-                  </>
-                )}
-              </div>
-            </DisclosurePanel>
-          </>
-        )}
-      </Disclosure>
-
       <main className="page-frame">
         <Outlet />
       </main>
@@ -235,6 +178,12 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/rankings" element={<RankingsPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/games" element={<AdminGames />} />
         </Route>
       </Route>
     </Routes>
