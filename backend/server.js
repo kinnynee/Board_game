@@ -39,7 +39,15 @@ app.use((req, res) => {
 
 app.use((error, req, res, next) => {
   console.error(error);
-  res.status(500).json({ message: 'Internal server error.' });
+
+  if (error && error.status) {
+    return res.status(error.status).json({
+      message: error.message || 'Request failed.',
+      ...(error.details ? { details: error.details } : {}),
+    });
+  }
+
+  return res.status(500).json({ message: 'Internal server error.' });
 });
 
 app.listen(PORT, () => {
