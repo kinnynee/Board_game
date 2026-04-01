@@ -73,21 +73,7 @@ async function upsertRating(userId, slug, body) {
   return savedRating;
 }
 
-
-// Thêm Aggregate tính điểm trung bình (SQL Engine)
-const getRatingStats = async (game_id) => {
-  const result = await db('ratings')
-    .where({ game_id })
-    .select(
-      db.raw('COUNT(*) as total_reviews'),
-      db.raw('ROUND(AVG(score)::numeric, 1) as average_score')
-    )
-    .first();
-  return result;
-};
-
 module.exports = {
-  getRatingStats,
   listRatings,
   upsertRating,
-}\n
+};
