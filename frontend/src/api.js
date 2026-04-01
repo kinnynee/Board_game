@@ -62,6 +62,18 @@ export const api = {
     const params = new URLSearchParams({ limit: String(limit) });
     return request(`/games/scores/me?${params.toString()}`);
   },
+  getGames() {
+    return request('/games');
+  },
+  getGame(slug) {
+    return request(`/games/${slug}`);
+  },
+  postRating(slug, rating, comment) {
+    return request(`/games/${slug}/ratings`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, comment }),
+    });
+  },
   updateProfile(profileData) {
     return request('/users/me', {
       method: 'PUT',
