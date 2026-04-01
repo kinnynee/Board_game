@@ -1,13 +1,54 @@
 const ratingService = require('../services/ratingService');
 
 async function listRatings(req, res) {
-  const ratings = await ratingService.listRatings(req.params.slug);
-  return res.json(ratings);
+  try {
+    const ratings = await ratingService.getRatingsByGame(req.params.slug);
+    return res.status(200).json({
+      success: true,
+      data: ratings
+    });
+  } catch (err) {
+    console.error("Lỗi lấy danh sách đánh giá:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể tải điểm đánh giá lúc này."
+    });
+  }
 }
 
 async function upsertRating(req, res) {
-  const savedRating = await ratingService.upsertRating(req.user.id, req.params.slug, req.body);
-  return res.status(201).json(savedRating);
+  try {
+    const { game_id, score, comment } = req.body;
+
+    if (!game_id) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã trò chơi.' });
+    }
+    
+    const parsedScore = Number(score);
+    if (!parsedScore || parsedScore < 1 || parsedScore > 5) {
+      return res.status(400).json({ success: false, message: 'Điểm đánh giá phải là số từ 1 đến 5 sao.' });
+    }
+
+    const cleanComment = comment ? comment.trim().substring(0, 500) : '';
+
+    const savedRating = await ratingService.createRating({ 
+      game_id, 
+      score: parsedScore, 
+      comment: cleanComment 
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Đánh giá thành công!",
+      data: savedRating
+    });
+  } catch (err) {
+    console.error("Lỗi tạo đánh giá:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Lỗi hệ thống khi lưu đánh giá."
+    });
+  }
 }
 
 module.exports = {

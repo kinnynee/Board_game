@@ -214,4 +214,4 @@ module.exports = {
   getMySaves,
   saveGame,
   recordScore,
-};
+}\n
