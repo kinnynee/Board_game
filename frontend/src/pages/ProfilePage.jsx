@@ -10,7 +10,17 @@ import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
 function formatDate(value) {
-  return new Date(value).toLocaleDateString('vi-VN');
+  if (!value) {
+    return 'Chưa cập nhật';
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Chưa cập nhật';
+  }
+
+  return parsedDate.toLocaleDateString('vi-VN');
 }
 
 function formatDuration(seconds = 0) {
@@ -18,6 +28,14 @@ function formatDuration(seconds = 0) {
   const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
   const remainingSeconds = String(totalSeconds % 60).padStart(2, '0');
   return `${minutes}:${remainingSeconds}`;
+}
+
+function createProfileForm(profile) {
+  return {
+    display_name: profile?.display_name || '',
+    email: profile?.email || '',
+    bio: profile?.bio || '',
+  };
 }
 
 export default function ProfilePage() {
@@ -30,6 +48,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const displayName = profile?.display_name || profile?.username || 'Người dùng';
+  const canSave = Boolean(form.display_name.trim()) && Boolean(form.email.trim()) && !saving;
 
   useEffect(() => {
     let cancelled = false;
@@ -50,11 +70,7 @@ export default function ProfilePage() {
 
         setProfile(nextProfile);
         setRecentScores(nextScores);
-        setForm({
-          display_name: nextProfile.display_name || '',
-          email: nextProfile.email || '',
-          bio: nextProfile.bio || '',
-        });
+        setForm(createProfileForm(nextProfile));
       } catch (err) {
         if (!cancelled) {
           setError(err.message);
@@ -73,15 +89,61 @@ export default function ProfilePage() {
     };
   }, []);
 
+  function openEditor() {
+    setForm(createProfileForm(profile));
+    setError('');
+    setNotice('');
+    setEditing(true);
+  }
+
+  function closeEditor() {
+    setForm(createProfileForm(profile));
+    setError('');
+    setEditing(false);
+  }
+
+  function updateField(field) {
+    return (event) => {
+      const value = field === 'bio' ? event.target.value : event.target.value.trimStart();
+      setForm((prev) => ({ ...prev, [field]: value }));
+      if (error) {
+        setError('');
+      }
+    };
+  }
+
   async function handleSave(event) {
     event.preventDefault();
-    setSaving(true);
     setError('');
     setNotice('');
 
+    const payload = {
+      display_name: form.display_name.trim(),
+      email: form.email.trim().toLowerCase(),
+      bio: form.bio.trim(),
+    };
+
+    if (!payload.display_name) {
+      setError('Display name không được để trống.');
+      return;
+    }
+
+    if (!payload.email) {
+      setError('Email không được để trống.');
+      return;
+    }
+
+    if (payload.bio.length > 160) {
+      setError('Bio nên ngắn gọn trong khoảng 160 ký tự.');
+      return;
+    }
+
+    setSaving(true);
+
     try {
-      const updatedProfile = await api.updateProfile(form);
+      const updatedProfile = await api.updateProfile(payload);
       setProfile(updatedProfile);
+      setForm(createProfileForm(updatedProfile));
       updateUser(updatedProfile);
       setEditing(false);
       setNotice('Cập nhật profile thành công.');
@@ -117,16 +179,16 @@ export default function ProfilePage() {
   return (
     <div className="page-stack">
       <section className="profile-hero">
-        <div className="avatar avatar-xl">{profile.display_name?.slice(0, 1) || '?'}</div>
+        <div className="avatar avatar-xl">{displayName.slice(0, 1).toUpperCase() || '?'}</div>
         <div className="profile-hero-copy">
           <p className="section-tag">Profile</p>
-          <h1>{profile.display_name}</h1>
+          <h1>{displayName}</h1>
           <p className="profile-meta">@{profile.username}</p>
           <p className="profile-meta">Tham gia ngày {formatDate(profile.created_at)}</p>
         </div>
         <div className="profile-hero-actions">
-          <button className="btn btn-secondary" type="button" onClick={() => setEditing((prev) => !prev)}>
-            {editing ? 'Đóng form' : 'Chỉnh sửa profile'}
+          <button className="btn btn-secondary" type="button" onClick={openEditor}>
+            Chỉnh sửa profile
           </button>
           <span className="hero-chip">{profile.is_active ? 'Tài khoản đang hoạt động' : 'Tài khoản tạm khóa'}</span>
         </div>
@@ -189,8 +251,8 @@ export default function ProfilePage() {
           <div className="profile-note">
             <strong>Tóm tắt nhanh</strong>
             <p>
-              Profile này hiện đang dùng cho luồng auth và cập nhật thông tin. Mọi thay đổi sẽ được phản ánh ngay lên
-              session hiện tại sau khi lưu thành công.
+              Profile này đang phục vụ cho luồng auth và cập nhật thông tin. Sau khi lưu thành công, session hiện tại
+              cũng sẽ được đồng bộ ngay.
             </p>
           </div>
         </article>
@@ -204,8 +266,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="empty-state empty-state-left">
-            <p>Mở hộp thoại chỉnh sửa để cập nhật tên hiển thị, email và bio của bạn trong một luồng tập trung hơn.</p>
-            <button className="btn btn-primary" type="button" onClick={() => setEditing(true)}>
+            <p>Hộp thoại chỉnh sửa sẽ giúp bạn cập nhật tên hiển thị, email và bio trong một luồng gọn hơn.</p>
+            <button className="btn btn-primary" type="button" onClick={openEditor}>
               Mở hộp thoại chỉnh sửa
             </button>
           </div>
@@ -247,7 +309,7 @@ export default function ProfilePage() {
         )}
       </section>
 
-      <Dialog open={editing} onClose={setEditing} className="dialog-root">
+      <Dialog open={editing} onClose={closeEditor} className="dialog-root">
         <DialogBackdrop className="dialog-backdrop" />
         <div className="dialog-frame">
           <DialogPanel className="dialog-panel">
@@ -256,7 +318,7 @@ export default function ProfilePage() {
                 <p className="section-tag">Headless UI Dialog</p>
                 <DialogTitle as="h2">Chỉnh sửa profile</DialogTitle>
                 <Description className="card-copy">
-                  Mọi thay đổi sẽ được lưu trực tiếp vào tài khoản hiện tại và đồng bộ lại phần thông tin phía ngoài.
+                  Mọi thay đổi sẽ được lưu trực tiếp vào tài khoản hiện tại và đồng bộ lại phần thông tin bên ngoài.
                 </Description>
               </div>
             </div>
@@ -268,8 +330,9 @@ export default function ProfilePage() {
                   id="profile-display-name"
                   className="form-input"
                   value={form.display_name}
-                  onChange={(event) => setForm((prev) => ({ ...prev, display_name: event.target.value }))}
+                  onChange={updateField('display_name')}
                   placeholder="Nhập tên hiển thị"
+                  maxLength={50}
                 />
               </div>
 
@@ -280,8 +343,9 @@ export default function ProfilePage() {
                   className="form-input"
                   type="email"
                   value={form.email}
-                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                  onChange={updateField('email')}
                   placeholder="email@example.com"
+                  autoComplete="email"
                 />
               </div>
 
@@ -292,16 +356,18 @@ export default function ProfilePage() {
                   className="form-textarea"
                   rows={5}
                   value={form.bio}
-                  onChange={(event) => setForm((prev) => ({ ...prev, bio: event.target.value }))}
+                  onChange={updateField('bio')}
                   placeholder="Giới thiệu ngắn gọn về bản thân"
+                  maxLength={160}
                 />
+                <p>{form.bio.trim().length}/160 ký tự</p>
               </div>
 
               <div className="button-row">
-                <button className="btn btn-primary" type="submit" disabled={saving}>
+                <button className="btn btn-primary" type="submit" disabled={!canSave}>
                   {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
-                <button className="btn btn-secondary" type="button" onClick={() => setEditing(false)}>
+                <button className="btn btn-secondary" type="button" onClick={closeEditor}>
                   Hủy
                 </button>
               </div>

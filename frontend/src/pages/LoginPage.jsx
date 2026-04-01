@@ -9,15 +9,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const canSubmit = username.trim() && password;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+
+    const identifier = username.trim();
+
+    if (!identifier || !password) {
+      setError('Vui lòng nhập username/email và mật khẩu.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(username, password);
-      navigate('/');
+      await login(identifier, password);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -33,13 +42,13 @@ export default function LoginPage() {
             <span className="auth-badge">Sign In</span>
             <h1>Đăng nhập tài khoản</h1>
             <p className="auth-subtitle">
-              Đăng nhập để truy cập profile, lưu trạng thái người dùng, và tiếp tục làm việc trên Board Game Project.
+              Đăng nhập để truy cập profile, lưu trạng thái người dùng và tiếp tục làm việc trên Board Game Project.
             </p>
           </div>
 
           <div className="auth-helper-card">
             <strong>Vào nhanh</strong>
-            <p>Bạn có thể dùng username hoặc email để đăng nhập, sau đó hệ thống sẽ tải lại thông tin qua token.</p>
+            <p>Bạn có thể dùng username hoặc email để đăng nhập, sau đó hệ thống sẽ tự tải lại thông tin từ token.</p>
           </div>
         </div>
 
@@ -53,8 +62,14 @@ export default function LoginPage() {
               className="form-input"
               type="text"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                if (error) {
+                  setError('');
+                }
+              }}
               placeholder="Nhập username hoặc email"
+              autoComplete="username"
               required
             />
           </div>
@@ -66,13 +81,19 @@ export default function LoginPage() {
               className="form-input"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                if (error) {
+                  setError('');
+                }
+              }}
               placeholder="Nhập mật khẩu"
+              autoComplete="current-password"
               required
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          <button className="btn btn-primary" type="submit" disabled={!canSubmit || loading}>
             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
