@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setError('');
 
     if (form.password !== form.confirmPassword) {
-      setError('Mat khau nhap lai chua trung khop.');
+      setError('Mật khẩu nhập lại chưa trùng khớp.');
       return;
     }
 
@@ -48,11 +48,20 @@ export default function RegisterPage() {
   return (
     <section className="auth-page">
       <div className="auth-card">
-        <span className="auth-badge">Register</span>
-        <h1>Tao tai khoan moi</h1>
-        <p className="auth-subtitle">
-          Form dang ky nay dung controlled inputs voi validation co ban, dung voi cach hoc React co ban.
-        </p>
+        <div className="auth-header">
+          <div>
+            <span className="auth-badge">Register</span>
+            <h1>Tạo tài khoản mới</h1>
+            <p className="auth-subtitle">
+              Form đăng ký này dùng controlled inputs với validation cơ bản, nhưng giao diện đã được sắp xếp rõ hơn để dễ nhập liệu.
+            </p>
+          </div>
+
+          <div className="auth-helper-card">
+            <strong>Cần gì để bắt đầu?</strong>
+            <p>Chỉ cần username, email hợp lệ, và mật khẩu trùng khớp là bạn có thể vào app ngay sau khi đăng ký.</p>
+          </div>
+        </div>
 
         {error && <div className="auth-error">{error}</div>}
 
@@ -76,7 +85,7 @@ export default function RegisterPage() {
               className="form-input"
               value={form.display_name}
               onChange={update('display_name')}
-              placeholder="Ten hien thi"
+              placeholder="Tên hiển thị"
             />
           </div>
 
@@ -94,38 +103,49 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="register-password">Mat khau</label>
+            <label className="form-label" htmlFor="register-password">Mật khẩu</label>
             <input
               id="register-password"
               className="form-input"
               type="password"
               value={form.password}
               onChange={update('password')}
-              placeholder="Toi thieu 6 ky tu"
+              placeholder="Tối thiểu 6 ký tự"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="register-confirm-password">Nhap lai mat khau</label>
+            <label className="form-label" htmlFor="register-confirm-password">Nhập lại mật khẩu</label>
             <input
               id="register-confirm-password"
               className="form-input"
               type="password"
               value={form.confirmPassword}
               onChange={update('confirmPassword')}
-              placeholder="Nhap lai mat khau"
+              placeholder="Nhập lại mật khẩu"
               required
             />
           </div>
 
           <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Dang tao tai khoan...' : 'Dang ky'}
+            {loading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
           </button>
         </form>
 
+        <div className="auth-tips">
+          <div className="tip-item">
+            <strong>Display name</strong>
+            <p>Bạn có thể để trống lúc tạo tài khoản và cập nhật sau trong trang profile.</p>
+          </div>
+          <div className="tip-item">
+            <strong>Mật khẩu</strong>
+            <p>Hãy chọn mật khẩu dễ nhớ nhưng không quá ngắn, vì đây là thông tin sẽ dùng để đăng nhập lại.</p>
+          </div>
+        </div>
+
         <div className="auth-footer">
-          Da co tai khoan? <Link to="/login">Dang nhap</Link>
+          Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
         </div>
       </div>
     </section>
