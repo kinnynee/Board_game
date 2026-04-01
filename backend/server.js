@@ -4,10 +4,12 @@ const express = require('express');
 const cors = require('cors');
 
 const authRoutes = require('./routes/authRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
 const userRoutes = require('./routes/userRoutes');
 const friendRoutes = require('./routes/friends');
 const gameRoutes = require('./routes/gameRoutes');
 const messageRoutes = require('./routes/messages');
+const rankingRoutes = require('./routes/rankingRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
@@ -21,11 +23,13 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true });
 });
 
+app.use('/api/achievements', achievementRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/friends', friendRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/rankings', rankingRoutes);
 app.use('/api/games', ratingRoutes);
 app.use('/api/admin', adminRoutes);
 
