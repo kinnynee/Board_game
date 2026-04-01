@@ -1,8 +1,13 @@
 const db = require('../config/db');
 
+function parsePositiveInt(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
 async function areFriends(userId, otherId) {
   const friendship = await db('friends')
-    .where(function() {
+    .where(function () {
       this.where({ user_id: userId, friend_id: otherId })
         .orWhere({ user_id: otherId, friend_id: userId });
     })
@@ -14,7 +19,7 @@ async function areFriends(userId, otherId) {
 const messageController = {
   async getConversations(req, res) {
     try {
-      const userId = req.user.id;
+      const userId = Number(req.user.id);
       const messages = await db('messages')
         .where({ sender_id: userId })
         .orWhere({ receiver_id: userId })
@@ -22,31 +27,38 @@ const messageController = {
 
       const conversations = {};
       for (const msg of messages) {
-        const otherId = msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
+        const otherId = Number(msg.sender_id) === userId ? msg.receiver_id : msg.sender_id;
         if (!conversations[otherId]) {
           conversations[otherId] = {
             user_id: otherId,
             last_message: msg.content,
             last_time: msg.created_at,
-            unread: 0
+            unread: 0,
           };
         }
-        if (msg.receiver_id === userId && !msg.is_read) {
+        if (Number(msg.receiver_id) === userId && !msg.is_read) {
           conversations[otherId].unread++;
         }
       }
 
       const userIds = Object.keys(conversations).map(Number);
-      if (userIds.length === 0) return res.json([]);
+      if (userIds.length === 0) {
+        return res.json([]);
+      }
 
       const users = await db('users')
         .whereIn('id', userIds)
         .select('id', 'username', 'display_name', 'avatar');
 
-      const userMap = users.reduce((acc, u) => ({ ...acc, [u.id]: u }), {});
-      const result = Object.values(conversations).map(c => ({
-        ...c,
-        user: userMap[c.user_id] || { id: c.user_id, username: 'Unknown' }
+      const userMap = Object.fromEntries(users.map((user) => [user.id, user]));
+      const result = Object.values(conversations).map((conversation) => ({
+        ...conversation,
+        user: userMap[conversation.user_id] || {
+          id: conversation.user_id,
+          username: 'Unknown',
+          display_name: 'Unknown',
+          avatar: null,
+        },
       }));
 
       return res.json(result);
@@ -57,10 +69,10 @@ const messageController = {
 
   async getMessages(req, res) {
     try {
-      const userId = req.user.id;
-      const otherId = Number(req.params.userId);
+      const userId = Number(req.user.id);
+      const otherId = parsePositiveInt(req.params.userId);
 
-      if (Number.isNaN(otherId)) {
+      if (!otherId) {
         return res.status(400).json({ error: 'Invalid userId' });
       }
 
@@ -70,7 +82,7 @@ const messageController = {
       }
 
       const messages = await db('messages')
-        .where(function() {
+        .where(function () {
           this.where({ sender_id: userId, receiver_id: otherId })
             .orWhere({ sender_id: otherId, receiver_id: userId });
         })
@@ -88,18 +100,28 @@ const messageController = {
 
   async sendMessage(req, res) {
     try {
-      const userId = req.user.id;
-      const { receiver_id, content } = req.body;
+      const userId = Number(req.user.id);
+      const receiverId = parsePositiveInt(req.body.receiver_id);
+      const { content } = req.body;
 
-      if (typeof receiver_id !== 'number' || typeof content !== 'string' || !content.trim()) {
+      if (!receiverId || typeof content !== 'string' || !content.trim()) {
         return res.status(400).json({ error: 'receiver_id and content are required' });
       }
 
-      if (!(await areFriends(userId, receiver_id))) {
+      if (receiverId === userId) {
+        return res.status(400).json({ error: 'Cannot send message to yourself' });
+      }
+
+      if (!(await areFriends(userId, receiverId))) {
         return res.status(403).json({ error: 'Can only send messages to accepted friends' });
       }
 
-      const [id] = await db('messages').insert({ sender_id: userId, receiver_id, content, is_read: false });
+      const [id] = await db('messages').insert({
+        sender_id: userId,
+        receiver_id: receiverId,
+        content: content.trim(),
+        is_read: false,
+      });
       const message = await db('messages').where({ id }).first();
 
       res.status(201).json(message);
@@ -110,10 +132,10 @@ const messageController = {
 
   async editMessage(req, res) {
     try {
-      const messageId = Number(req.params.id);
+      const messageId = parsePositiveInt(req.params.id);
       const { content } = req.body;
 
-      if (Number.isNaN(messageId) || typeof content !== 'string' || !content.trim()) {
+      if (!messageId || typeof content !== 'string' || !content.trim()) {
         return res.status(400).json({ error: 'message id and content are required' });
       }
 
@@ -125,7 +147,7 @@ const messageController = {
         return res.status(404).json({ error: 'Message not found or not authorized' });
       }
 
-      await db('messages').where({ id: messageId }).update({ content });
+      await db('messages').where({ id: messageId }).update({ content: content.trim() });
       res.json({ message: 'Message updated' });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -134,8 +156,8 @@ const messageController = {
 
   async deleteMessage(req, res) {
     try {
-      const messageId = Number(req.params.id);
-      if (Number.isNaN(messageId)) {
+      const messageId = parsePositiveInt(req.params.id);
+      if (!messageId) {
         return res.status(400).json({ error: 'Invalid message id' });
       }
 
