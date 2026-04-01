@@ -61,4 +61,28 @@ export const api = {
       body: JSON.stringify(profileData),
     });
   },
+  admin: {
+    getStats() {
+      return request('/admin/stats');
+    },
+    listUsers() {
+      return request('/admin/users');
+    },
+    updateUser(id, data) {
+      return request(`/admin/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    },
+    listGames() {
+      return request('/admin/games');
+    },
+    updateGame(id, data) {
+      return request(`/admin/games/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    },
+  },
 };
+

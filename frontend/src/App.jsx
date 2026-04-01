@@ -4,6 +4,9 @@ import { useTheme } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminGames from './pages/AdminGames';
 import './App.css';
 
 function ProtectedRoute() {
@@ -22,6 +25,27 @@ function ProtectedRoute() {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+}
+
+function AdminRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="app-shell">
+        <div className="page-loader">
+          <div className="spinner" />
+          <p>Dang kiem tra quyen admin...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
@@ -103,6 +127,9 @@ function AppLayout() {
 
           {user ? (
             <>
+              {user.role === 'admin' && (
+                <Link className="btn btn-secondary btn-compact" to="/admin">Admin</Link>
+              )}
               <Link className="btn btn-secondary btn-compact" to="/profile">Profile</Link>
               <button className="btn btn-primary btn-compact" type="button" onClick={logout}>
                 Logout
@@ -137,6 +164,12 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/games" element={<AdminGames />} />
         </Route>
       </Route>
     </Routes>
