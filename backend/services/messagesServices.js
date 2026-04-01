@@ -4,6 +4,12 @@ function normalizeUserId(userId) {
   return Number(userId);
 }
 
+function buildStatusError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 async function areFriends(userId, otherId) {
   const normalizedUserId = normalizeUserId(userId);
   const normalizedOtherId = normalizeUserId(otherId);
@@ -93,14 +99,32 @@ async function getMessages(userId, otherId) {
 async function createMessage(senderId, receiverId, content) {
   const normalizedSenderId = normalizeUserId(senderId);
   const normalizedReceiverId = normalizeUserId(receiverId);
-  const [id] = await db('messages').insert({
-    sender_id: normalizedSenderId,
-    receiver_id: normalizedReceiverId,
-    content: content.trim(),
-    is_read: false,
-  });
 
-  return db('messages').where({ id }).first();
+  try {
+    const insertedRows = await db('messages')
+      .insert({
+        sender_id: normalizedSenderId,
+        receiver_id: normalizedReceiverId,
+        content: content.trim(),
+        is_read: false,
+      })
+      .returning('id');
+
+    if (!Array.isArray(insertedRows) || insertedRows.length === 0) {
+      throw buildStatusError(500, 'Message was created but no id was returned.');
+    }
+
+    const firstRow = insertedRows[0];
+    const messageId = typeof firstRow === 'object' && firstRow !== null ? firstRow.id : firstRow;
+
+    return db('messages').where({ id: messageId }).first();
+  } catch (error) {
+    if (error?.code === '23503') {
+      throw buildStatusError(404, 'The selected receiver could not be found.');
+    }
+
+    throw error;
+  }
 }
 
 async function getMessageById(messageId) {
