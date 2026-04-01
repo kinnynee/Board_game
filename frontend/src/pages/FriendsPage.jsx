@@ -103,7 +103,7 @@ export default function FriendsPage() {
 
     try {
       await api.sendFriendRequest(targetId);
-      setNotice('Da gui loi moi ket ban.');
+      setNotice('Đã gửi lời mời kết bạn.');
       await loadFriendData();
       await handleSearch();
     } catch (err) {
@@ -117,7 +117,7 @@ export default function FriendsPage() {
 
     try {
       await api.respondFriendRequest(requestId, action);
-      setNotice(action === 'accept' ? 'Da chap nhan loi moi ket ban.' : 'Da tu choi loi moi ket ban.');
+      setNotice(action === 'accept' ? 'Đã chấp nhận lời mời kết bạn.' : 'Đã từ chối lời mời kết bạn.');
       await loadFriendData();
     } catch (err) {
       setError(err.message);
@@ -134,7 +134,7 @@ export default function FriendsPage() {
 
     try {
       await api.removeFriend(friendToRemove.friendship_id);
-      setNotice(`Da go ${friendToRemove.friend.display_name || friendToRemove.friend.username} khoi danh sach ban be.`);
+      setNotice(`Đã gỡ ${friendToRemove.friend.display_name || friendToRemove.friend.username} khỏi danh sách bạn bè.`);
       setFriendToRemove(null);
       await loadFriendData();
     } catch (err) {
@@ -143,9 +143,9 @@ export default function FriendsPage() {
   }
 
   const summary = useMemo(() => ([
-    { label: 'Ban be', value: friends.length, tone: 'text-[var(--accent-forest)]' },
-    { label: 'Loi moi cho', value: pending.length, tone: 'text-[var(--accent)]' },
-    { label: 'Ket qua tim', value: searchResults.length, tone: 'text-[var(--text-strong)]' },
+    { label: 'Bạn bè', value: friends.length, tone: 'text-[var(--accent-forest)]' },
+    { label: 'Lời mời chờ', value: pending.length, tone: 'text-[var(--accent)]' },
+    { label: 'Kết quả tìm', value: searchResults.length, tone: 'text-[var(--text-strong)]' },
   ]), [friends.length, pending.length, searchResults.length]);
 
   const friendIds = useMemo(
@@ -166,20 +166,20 @@ export default function FriendsPage() {
           <div className="space-y-4">
             <p className="section-tag mb-0">Friends Hub</p>
             <h1 className="text-3xl font-black tracking-tight text-[var(--text-strong)] sm:text-5xl">
-              Quan ly ket noi, loi moi va tim ban moi trong cung mot noi.
+              Quản lý kết nối, lời mời và tìm bạn mới trong cùng một nơi.
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-[var(--text-soft)] sm:text-base">
-              Trang nay dung Tailwind CSS cho layout linh hoat va Headless UI de to chuc trai nghiem theo tung phan:
-              danh sach ban be, loi moi dang cho, va khu vuc tim kiem nguoi dung.
+              Trang này dùng Tailwind CSS cho layout linh hoạt và Headless UI để tổ chức trải nghiệm theo từng phần:
+              danh sách bạn bè, lời mời đang chờ, và khu vực tìm kiếm người dùng.
             </p>
             <Disclosure as="div" className="rounded-3xl border border-[var(--stroke)] bg-white/60 p-4 dark:bg-white/5">
               <DisclosureButton className="flex w-full items-center justify-between gap-4 text-left text-sm font-semibold text-[var(--text-strong)]">
-                <span>Meo dung nhanh cho trang ban be</span>
-                <span className="text-[var(--text-muted)]">Mo rong</span>
+                <span>Mẹo dùng nhanh cho trang bạn bè</span>
+                <span className="text-[var(--text-muted)]">Mở rộng</span>
               </DisclosureButton>
               <DisclosurePanel className="mt-3 space-y-2 text-sm leading-6 text-[var(--text-soft)]">
-                <p>Tim theo username hoac display name de gui loi moi ket ban.</p>
-                <p>Phan ban be va loi moi se tu dong lam moi sau cac thao tac chap nhan, tu choi hoac go ban.</p>
+                <p>Tìm theo username hoặc display name để gửi lời mời kết bạn.</p>
+                <p>Phần bạn bè và lời mời sẽ tự động làm mới sau các thao tác chấp nhận, từ chối hoặc gỡ bạn.</p>
               </DisclosurePanel>
             </Disclosure>
           </div>
@@ -202,8 +202,8 @@ export default function FriendsPage() {
         <article className="rounded-[28px] border border-[var(--stroke)] bg-[var(--panel)] p-5 shadow-[var(--card-shadow)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="section-tag mb-1">Tong quan</p>
-              <h2 className="text-xl font-black text-[var(--text-strong)]">Khu ban be dang o trang thai kha tot</h2>
+              <p className="section-tag mb-1">Tổng quan</p>
+              <h2 className="text-xl font-black text-[var(--text-strong)]">Khu bạn bè đang ở trạng thái khá tốt</h2>
             </div>
             <span className="rounded-full bg-[rgba(14,101,91,0.12)] px-3 py-1 text-xs font-semibold text-[var(--accent-forest)]">
               Social module
@@ -212,16 +212,16 @@ export default function FriendsPage() {
 
           <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--text-soft)] sm:grid-cols-3">
             <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 dark:bg-white/5">
-              <p className="font-semibold text-[var(--text-strong)]">Ket noi hien co</p>
-              <p className="mt-1">Ban da co {friends.length} ket noi san sang de mo tin nhan.</p>
+              <p className="font-semibold text-[var(--text-strong)]">Kết nối hiện có</p>
+              <p className="mt-1">Bạn đã có {friends.length} kết nối sẵn sàng để mở tin nhắn.</p>
             </div>
             <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 dark:bg-white/5">
-              <p className="font-semibold text-[var(--text-strong)]">Loi moi can xu ly</p>
-              <p className="mt-1">{pending.length ? `Co ${pending.length} loi moi dang cho ban phan hoi.` : 'Hien tai khong co loi moi nao dang cho.'}</p>
+              <p className="font-semibold text-[var(--text-strong)]">Lời mời cần xử lý</p>
+              <p className="mt-1">{pending.length ? `Có ${pending.length} lời mời đang chờ bạn phản hồi.` : 'Hiện tại không có lời mời nào đang chờ.'}</p>
             </div>
             <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 dark:bg-white/5">
-              <p className="font-semibold text-[var(--text-strong)]">Tim ban nhanh</p>
-              <p className="mt-1">Dung khu tim kiem de gui loi moi ma khong can roi khoi trang nay.</p>
+              <p className="font-semibold text-[var(--text-strong)]">Tìm bạn nhanh</p>
+              <p className="mt-1">Dùng khu tìm kiếm để gửi lời mời mà không cần rời khỏi trang này.</p>
             </div>
           </div>
         </article>
@@ -233,7 +233,7 @@ export default function FriendsPage() {
               to="/messages"
               className="flex items-center justify-between rounded-2xl border border-[var(--stroke)] bg-white/60 px-4 py-3 text-sm font-semibold text-[var(--text-strong)] transition hover:bg-white/90 dark:bg-white/5"
             >
-              <span>Mo khu tin nhan</span>
+              <span>Mở khu tin nhắn</span>
               <span className="text-[var(--text-muted)]">/messages</span>
             </Link>
             <button
@@ -241,7 +241,7 @@ export default function FriendsPage() {
               className="flex w-full items-center justify-between rounded-2xl border border-[var(--stroke)] bg-white/60 px-4 py-3 text-sm font-semibold text-[var(--text-strong)] transition hover:bg-white/90 dark:bg-white/5"
               onClick={loadFriendData}
             >
-              <span>Tai lai du lieu ban be</span>
+              <span>Tải lại dữ liệu bạn bè</span>
               <span className="text-[var(--text-muted)]">Refresh</span>
             </button>
           </div>
@@ -262,16 +262,16 @@ export default function FriendsPage() {
 
       <TabGroup>
         <TabList className="flex flex-wrap gap-3 rounded-[24px] border border-[var(--stroke)] bg-[var(--panel)] p-3 shadow-[var(--card-shadow)]">
-          <Tab className={({ selected }) => tabClass(selected)}>Ban be ({friends.length})</Tab>
-          <Tab className={({ selected }) => tabClass(selected)}>Loi moi ({pending.length})</Tab>
-          <Tab className={({ selected }) => tabClass(selected)}>Tim kiem</Tab>
+          <Tab className={({ selected }) => tabClass(selected)}>Bạn bè ({friends.length})</Tab>
+          <Tab className={({ selected }) => tabClass(selected)}>Lời mời ({pending.length})</Tab>
+          <Tab className={({ selected }) => tabClass(selected)}>Tìm kiếm</Tab>
         </TabList>
 
         <TabPanels className="mt-6">
           <TabPanel className="space-y-4">
             {loading ? (
               <div className="rounded-[28px] border border-dashed border-[var(--stroke-strong)] bg-[var(--panel)] px-6 py-12 text-center text-[var(--text-soft)]">
-                Dang tai danh sach ban be...
+                Đang tải danh sách bạn bè...
               </div>
             ) : friends.length ? (
               <div className="grid gap-4 xl:grid-cols-2">
@@ -303,22 +303,22 @@ export default function FriendsPage() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 dark:bg-white/5">
                           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                            Ket noi tu
+                            Kết nối từ
                           </p>
                           <p className="mt-2 text-sm font-semibold text-[var(--text-strong)]">{formatDate(item.created_at)}</p>
                         </div>
                         <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 dark:bg-white/5">
                           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                            Biet danh
+                            Biệt danh
                           </p>
                           <p className="mt-2 text-sm font-semibold text-[var(--text-strong)]">
-                            {item.nickname || 'Chua dat biet danh'}
+                            {item.nickname || 'Chưa đặt biệt danh'}
                           </p>
                         </div>
                       </div>
 
                       <div className="rounded-2xl border border-dashed border-[var(--stroke-strong)] px-4 py-3 text-sm leading-6 text-[var(--text-soft)]">
-                        {item.friend.bio || 'Nguoi ban nay chua them phan gioi thieu. Ban co the mo khung nhan tin de bat dau tro chuyen.'}
+                        {item.friend.bio || 'Người bạn này chưa thêm phần giới thiệu. Bạn có thể mở khung nhắn tin để bắt đầu trò chuyện.'}
                       </div>
 
                       <div className="flex flex-wrap gap-3">
@@ -326,14 +326,14 @@ export default function FriendsPage() {
                           to={`/messages/${item.friend.id}`}
                           className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(209,111,52,0.26)]"
                         >
-                          Nhan tin
+                          Nhắn tin
                         </Link>
                         <button
                           type="button"
                           className="inline-flex items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-700 dark:text-red-300"
                           onClick={() => setFriendToRemove(item)}
                         >
-                          Go ban
+                          Gỡ bạn
                         </button>
                       </div>
                     </div>
@@ -342,7 +342,7 @@ export default function FriendsPage() {
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-[var(--stroke-strong)] bg-[var(--panel)] px-6 py-12 text-center text-[var(--text-soft)]">
-                Ban chua co ban be nao. Hay thu tim kiem nguoi dung o tab ben canh.
+                Bạn chưa có bạn bè nào. Hãy thử tìm kiếm người dùng ở tab bên cạnh.
               </div>
             )}
           </TabPanel>
@@ -350,7 +350,7 @@ export default function FriendsPage() {
           <TabPanel className="space-y-4">
             {loading ? (
               <div className="rounded-[28px] border border-dashed border-[var(--stroke-strong)] bg-[var(--panel)] px-6 py-12 text-center text-[var(--text-soft)]">
-                Dang tai loi moi ket ban...
+                Đang tải lời mời kết bạn...
               </div>
             ) : pending.length ? (
               <div className="grid gap-4">
@@ -369,7 +369,7 @@ export default function FriendsPage() {
                             {request.display_name || request.username}
                           </h2>
                           <p className="text-sm text-[var(--text-muted)]">@{request.username}</p>
-                          <p className="mt-1 text-sm text-[var(--text-soft)]">Gui ngay {formatDate(request.created_at)}</p>
+                          <p className="mt-1 text-sm text-[var(--text-soft)]">Gửi ngày {formatDate(request.created_at)}</p>
                         </div>
                       </div>
 
@@ -379,14 +379,14 @@ export default function FriendsPage() {
                           className="inline-flex items-center justify-center rounded-full bg-[var(--accent-forest)] px-4 py-2 text-sm font-semibold text-white"
                           onClick={() => handleRespond(request.id, 'accept')}
                         >
-                          Dong y
+                          Đồng ý
                         </button>
                         <button
                           type="button"
                           className="inline-flex items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-700 dark:text-red-300"
                           onClick={() => handleRespond(request.id, 'reject')}
                         >
-                          Tu choi
+                          Từ chối
                         </button>
                       </div>
                     </div>
@@ -395,7 +395,7 @@ export default function FriendsPage() {
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-[var(--stroke-strong)] bg-[var(--panel)] px-6 py-12 text-center text-[var(--text-soft)]">
-                Khong co loi moi nao dang cho phan hoi.
+                Không có lời mời nào đang chờ phản hồi.
               </div>
             )}
           </TabPanel>
@@ -404,11 +404,11 @@ export default function FriendsPage() {
             <section className="rounded-[28px] border border-[var(--stroke)] bg-[var(--panel)] p-5 shadow-[var(--card-shadow)]">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
                 <div className="flex-1">
-                  <p className="mb-2 text-sm font-semibold text-[var(--text-strong)]">Tim nguoi dung moi</p>
+                  <p className="mb-2 text-sm font-semibold text-[var(--text-strong)]">Tìm người dùng mới</p>
                   <div className="flex flex-col gap-3 md:flex-row">
                     <input
                       className="w-full rounded-2xl border border-[var(--stroke)] bg-white/70 px-4 py-3 text-sm text-[var(--text-strong)] outline-none ring-0 placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] dark:bg-white/5"
-                      placeholder="Tim theo username hoac ten hien thi"
+                      placeholder="Tìm theo username hoặc tên hiển thị"
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       onKeyDown={(event) => {
@@ -422,13 +422,13 @@ export default function FriendsPage() {
                       className="inline-flex min-w-[140px] items-center justify-center rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(209,111,52,0.28)]"
                       onClick={handleSearch}
                     >
-                      {searching ? 'Dang tim...' : 'Tim kiem'}
+                      {searching ? 'Đang tìm...' : 'Tìm kiếm'}
                     </button>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 text-sm leading-6 text-[var(--text-soft)] dark:bg-white/5 lg:max-w-xs">
-                  Ket qua tim kiem se bo qua tai khoan cua ban va hien thi trang thai phu hop de tranh gui loi moi trung lap.
+                  Kết quả tìm kiếm sẽ bỏ qua tài khoản của bạn và hiển thị trạng thái phù hợp để tránh gửi lời mời trùng lặp.
                 </div>
               </div>
             </section>
@@ -454,18 +454,18 @@ export default function FriendsPage() {
                           </h2>
                           <p className="text-sm text-[var(--text-muted)]">@{candidate.username}</p>
                           <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--text-soft)]">
-                            {candidate.bio || 'Nguoi dung nay chua cap nhat phan gioi thieu.'}
+                            {candidate.bio || 'Người dùng này chưa cập nhật phần giới thiệu.'}
                           </p>
 
                           <div className="mt-4 flex flex-wrap gap-2">
                             {alreadyFriend ? (
                               <span className="rounded-full bg-[rgba(14,101,91,0.12)] px-3 py-1 text-xs font-semibold text-[var(--accent-forest)]">
-                                Da la ban be
+                                Đã là bạn bè
                               </span>
                             ) : null}
                             {waitingResponse ? (
                               <span className="rounded-full bg-[rgba(209,111,52,0.12)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-                                Dang co loi moi cho xu ly
+                                Đang có lời mời chờ xử lý
                               </span>
                             ) : null}
                             <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--text-soft)] ring-1 ring-[var(--stroke)] dark:bg-white/5">
@@ -485,7 +485,7 @@ export default function FriendsPage() {
                               ].join(' ')}
                               onClick={() => handleSendRequest(candidate.id)}
                             >
-                              {alreadyFriend ? 'Da ket noi' : waitingResponse ? 'Cho ban phan hoi' : 'Gui loi moi'}
+                              {alreadyFriend ? 'Đã kết nối' : waitingResponse ? 'Chờ bạn phản hồi' : 'Gửi lời mời'}
                             </button>
                           </div>
                         </div>
@@ -496,7 +496,7 @@ export default function FriendsPage() {
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-[var(--stroke-strong)] bg-[var(--panel)] px-6 py-12 text-center text-[var(--text-soft)]">
-                {searchQuery.trim() ? 'Chua co ket qua phu hop. Hay thu tu khoa khac.' : 'Nhap tu khoa de bat dau tim kiem ban be.'}
+                {searchQuery.trim() ? 'Chưa có kết quả phù hợp. Hãy thử từ khóa khác.' : 'Nhập từ khóa để bắt đầu tìm kiếm bạn bè.'}
               </div>
             )}
           </TabPanel>
@@ -507,13 +507,13 @@ export default function FriendsPage() {
         <DialogBackdrop className="fixed inset-0 bg-slate-950/45 backdrop-blur-sm" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <DialogPanel className="w-full max-w-md rounded-[28px] border border-[var(--stroke)] bg-[var(--panel)] p-6 shadow-[var(--card-shadow)]">
-            <p className="section-tag mb-2">Xac nhan</p>
+            <p className="section-tag mb-2">Xác nhận</p>
             <DialogTitle className="text-2xl font-black text-[var(--text-strong)]">
-              Go ban khoi danh sach?
+              Gỡ bạn khỏi danh sách?
             </DialogTitle>
             <Description className="mt-3 text-sm leading-6 text-[var(--text-soft)]">
               {friendToRemove
-                ? `Ban sap go ${friendToRemove.friend.display_name || friendToRemove.friend.username}. Cuoc tro chuyen cu van con nhung hai ben se khong con la ban be nua.`
+                ? `Bạn sắp gỡ ${friendToRemove.friend.display_name || friendToRemove.friend.username}. Cuộc trò chuyện cũ vẫn còn nhưng hai bên sẽ không còn là bạn bè nữa.`
                 : ''}
             </Description>
 
@@ -523,14 +523,14 @@ export default function FriendsPage() {
                 className="inline-flex flex-1 items-center justify-center rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white"
                 onClick={handleRemoveFriend}
               >
-                Xac nhan go ban
+                Xác nhận gỡ bạn
               </button>
               <button
                 type="button"
                 className="inline-flex flex-1 items-center justify-center rounded-full border border-[var(--stroke-strong)] px-4 py-2 text-sm font-semibold text-[var(--text-strong)]"
                 onClick={() => setFriendToRemove(null)}
               >
-                Huy
+                Hủy
               </button>
             </div>
           </DialogPanel>
