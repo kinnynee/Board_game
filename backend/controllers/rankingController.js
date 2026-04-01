@@ -1,20 +1,12 @@
-const db = require('../db');
+const rankingService = require('../services/rankingService');
 
 const getRankings = async (req, res) => {
-  const rankings = await db('users')
-    .select('id', 'username', 'score', 'wins', 'losses')
-    .orderBy('score', 'desc')
-    .limit(10);
-
-  const data = rankings.map((player, index) => ({
-    rank: index + 1,
-    username: player.username,
-    score: player.score,
-    wins: player.wins,
-    losses: player.losses,
-  }));
-
-  res.json({ success: true, data });
+  try {
+    const data = await rankingService.getRankings();
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Không thể tải bảng xếp hạng' });
+  }
 };
 
 module.exports = { getRankings };
