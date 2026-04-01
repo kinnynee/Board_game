@@ -13,6 +13,8 @@ import { useTheme } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
+import RankingsPage from './pages/RankingsPage';
+import AchievementsPage from './pages/AchievementsPage';
 import './App.css';
 
 function ProtectedRoute() {
@@ -60,62 +62,61 @@ function HomePage() {
     <div className="page-stack">
       <section className="landing-grid">
         <div className="landing-copy">
-          <p className="section-tag">React + REST API</p>
-          <h1>Board Game Project đã có luồng auth và profile gọn, rõ, dễ mở rộng.</h1>
+          <p className="section-tag">Web Board Game</p>
+          <h1>Chào mừng đến với web Board Game.</h1>
           <p className="lead">
-            Giao diện này giữ cách học dễ theo dõi: controlled form bằng <code>useState</code>, gọi API bằng
-            <code>fetch</code>, token JWT lưu trong <code>localStorage</code>, và profile được cập nhật qua
-            <code>PUT /api/users/me</code>.
+            Thử thách trí tuệ với 7 tựa game kinh điển: Caro, Tic-Tac-Toe, Rắn Săn Mồi và hơn thế nữa. 
+            Kết bạn, leo rank và thu thập vô số thành tựu độc quyền!
           </p>
 
           <div className="button-row">
             {user ? (
               <>
-                <Link className="btn btn-primary" to="/profile">Mở profile</Link>
-                <Link className="btn btn-secondary" to="/register">Tạo thêm tài khoản</Link>
+                <Link className="btn btn-primary" to="/rankings">🏆 Xem Bảng Xếp Hạng</Link>
+                <Link className="btn btn-secondary" to="/achievements">🌟 Thành Tựu Của Tôi</Link>
               </>
             ) : (
               <>
-                <Link className="btn btn-primary" to="/login">Đăng nhập</Link>
-                <Link className="btn btn-secondary" to="/register">Đăng ký</Link>
+                <Link className="btn btn-primary" to="/login">Đăng nhập để chơi ngay</Link>
+                <Link className="btn btn-secondary" to="/register">Tạo tài khoản mới</Link>
               </>
             )}
           </div>
 
           <div className="showcase-grid">
             <article className="mini-panel">
-              <span className="mini-label">Auth</span>
-              <strong>Đăng nhập và xác thực JWT</strong>
-              <p>Token được phục hồi từ local storage và kiểm tra lại qua endpoint `me`.</p>
+              <span className="mini-label">Thi Đấu</span>
+              <strong>Hệ Thống Rank Kịch Tính</strong>
+              <p>Tham gia đấu hạng, so tài kỹ năng và leo lên top 10 cao thủ xuất sắc nhất server.</p>
             </article>
             <article className="mini-panel">
-              <span className="mini-label">Profile</span>
-              <strong>Cập nhật thông tin cá nhân</strong>
-              <p>Display name, email và bio được đồng bộ ngay sau khi lưu thành công.</p>
+              <span className="mini-label">Sưu Tập</span>
+              <strong>Thành Tựu Cực Chất</strong>
+              <p>Mở khóa danh hiệu lấp lánh độc quyền khi đạt các cột mốc khủng trong game.</p>
             </article>
           </div>
         </div>
 
         <div className="landing-card page-stack">
           <div>
-            <p className="section-tag">Flow đã có</p>
-            <h2>Những gì đang hoạt động</h2>
+            <p className="section-tag">Thư Viện</p>
+            <h2>Khám phá thế giới Game</h2>
           </div>
 
           <ul className="feature-list">
-            <li>POST <code>/api/auth/register</code> tạo tài khoản mới và trả về token.</li>
-            <li>POST <code>/api/auth/login</code> hỗ trợ đăng nhập bằng username hoặc email.</li>
-            <li>GET <code>/api/auth/me</code> phục hồi phiên đăng nhập sau khi tải lại trang.</li>
-            <li>PUT <code>/api/users/me</code> cập nhật profile và đồng bộ lại UI.</li>
+            <li>🎮 <strong>Caro 5 & Caro 4:</strong> Đấu trí cờ ca-ro kinh điển.</li>
+            <li>🐍 <strong>Rắn Săn Mồi:</strong> Phiên bản điều khiển mượt mà kịch tính.</li>
+            <li>💎 <strong>Ghép Hàng 3:</strong> Giải trí cực đỉnh với phong cách Match-3.</li>
+            <li>🃏 <strong>Cờ Trí Nhớ:</strong> Lật thẻ tìm cặp siêu hack não.</li>
           </ul>
 
           <div className="insight-card">
-            <span className="mini-label">Trạng thái</span>
-            <strong>{user ? `Đang đăng nhập với @${user.username}` : 'Sẵn sàng cho luồng đăng nhập mới'}</strong>
+            <span className="mini-label">Bảng Tin</span>
+            <strong>{user ? `Chào mừng cao thủ @${user.username} quay trở lại!` : 'Hãy tham gia cùng hàng ngàn kỳ thủ khác'}</strong>
             <p>
               {user
-                ? 'Bạn có thể vào profile để xem thông tin, cập nhật bio, và kiểm tra lịch sử điểm số.'
-                : 'Nếu chưa có tài khoản, bạn có thể đăng ký trong vài bước và vào app ngay sau đó.'}
+                ? 'Bạn đã sẵn sàng để tiếp tục chuỗi thắng của mình? Vào sảnh game ngay nào!'
+                : 'Đăng ký tài khoản trong 1 phút để lưu điểm, kết bạn và đua top mỗi ngày.'}
             </p>
           </div>
         </div>
@@ -138,7 +139,7 @@ function AppLayout() {
                 <span className="brand-mark">BG</span>
                 <div>
                   <strong>Board Game Project</strong>
-                  <p>Auth and profile module</p>
+                  <p>Play & Connect</p>
                 </div>
               </Link>
 
@@ -157,6 +158,12 @@ function AppLayout() {
                     <MenuItems className="menu-items" anchor="bottom end">
                       <MenuItem>
                         <Link className="menu-link" to="/profile">Hồ sơ của tôi</Link>
+                      </MenuItem>
+                      <MenuItem>
+                        <Link className="menu-link" to="/rankings">🏆 Xếp Hạng</Link>
+                      </MenuItem>
+                      <MenuItem>
+                        <Link className="menu-link" to="/achievements">🌟 Thành Tựu</Link>
                       </MenuItem>
                       <MenuItem>
                         <button className="menu-link menu-link-button" type="button" onClick={logout}>
@@ -224,6 +231,8 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/rankings" element={<RankingsPage />} />
+          <Route path="/achievements" element={<AchievementsPage />} />
         </Route>
       </Route>
     </Routes>
