@@ -6,7 +6,7 @@
 Ứng dụng web full-stack cho trò chơi bàn cờ (board game) với đầy đủ chức năng theo yêu cầu đồ án:
 
 - **Frontend**: React (Vite) - Single Page Application với routing đầy đủ
-- **Backend**: Express.js + Knex.js + SQLite (có thể switch sang PostgreSQL/Supabase)
+- **Backend**: Express.js + Knex.js + Supabase
 - **Kiến trúc**: MVC (backend), Component-based (frontend)
 - **Authentication**: JWT-based
 - **Dark mode**: Có
