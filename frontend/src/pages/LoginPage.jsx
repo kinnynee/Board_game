@@ -9,15 +9,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const canSubmit = username.trim() && password;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+
+    const identifier = username.trim();
+
+    if (!identifier || !password) {
+      setError('Vui lòng nhập username/email và mật khẩu.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(username, password);
-      navigate('/');
+      await login(identifier, password);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,48 +37,65 @@ export default function LoginPage() {
   return (
     <section className="auth-page">
       <div className="auth-card">
-        <span className="auth-badge">Sign In</span>
-        <h1>Dang nhap tai khoan</h1>
-        <p className="auth-subtitle">
-          Dang nhap de truy cap profile va tiep tuc cap nhat do an theo luong da hoc.
-        </p>
+        <div className="auth-header">
+          <div>
+            <span className="auth-badge">Sign In</span>
+            <h1>Đăng nhập tài khoản</h1>
+          </div>
+
+          <div className="auth-helper-card">
+            <strong>Vào nhanh</strong>
+            <p>Bạn có thể dùng username hoặc email để đăng nhập</p>
+          </div>
+        </div>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="login-username">Username hoac email</label>
+            <label className="form-label" htmlFor="login-username">Username hoặc email</label>
             <input
               id="login-username"
               className="form-input"
               type="text"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="Nhap username hoac email"
+              onChange={(event) => {
+                setUsername(event.target.value);
+                if (error) {
+                  setError('');
+                }
+              }}
+              placeholder="Nhập username hoặc email"
+              autoComplete="username"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="login-password">Mat khau</label>
+            <label className="form-label" htmlFor="login-password">Mật khẩu</label>
             <input
               id="login-password"
               className="form-input"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Nhap mat khau"
+              onChange={(event) => {
+                setPassword(event.target.value);
+                if (error) {
+                  setError('');
+                }
+              }}
+              placeholder="Nhập mật khẩu"
+              autoComplete="current-password"
               required
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Dang dang nhap...' : 'Dang nhap'}
+          <button className="btn btn-primary" type="submit" disabled={!canSubmit || loading}>
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
-
         <div className="auth-footer">
-          Chua co tai khoan? <Link to="/register">Dang ky ngay</Link>
+          Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </div>
       </div>
     </section>

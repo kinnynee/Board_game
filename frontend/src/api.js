@@ -30,7 +30,7 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(payload?.message || 'Request failed.');
+    throw new Error(payload?.message || payload?.error || 'Request failed.');
   }
 
   return payload;
@@ -52,37 +52,33 @@ export const api = {
   getMe() {
     return request('/auth/me');
   },
+  getOwnProfile() {
+    return request('/users/me');
+  },
   getProfile(id) {
     return request(`/users/${id}`);
+  },
+  getMyScores(limit = 20) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    return request(`/games/scores/me?${params.toString()}`);
+  },
+  getGames() {
+    return request('/games');
+  },
+  getGame(slug) {
+    return request(`/games/${slug}`);
+  },
+  postRating(slug, rating, comment) {
+    return request(`/games/${slug}/ratings`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, comment }),
+    });
   },
   updateProfile(profileData) {
     return request('/users/me', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
-  },
-  admin: {
-    getStats() {
-      return request('/admin/stats');
-    },
-    listUsers() {
-      return request('/admin/users');
-    },
-    updateUser(id, data) {
-      return request(`/admin/users/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
-    listGames() {
-      return request('/admin/games');
-    },
-    updateGame(id, data) {
-      return request(`/admin/games/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-    },
   },
 };
 

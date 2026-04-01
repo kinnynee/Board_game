@@ -35,6 +35,7 @@ function requireAdmin(req, res, next) {
 }
 
 module.exports = {
+  auth: requireAuth,
   requireAuth,
   requireAdmin,
   JWT_SECRET,
