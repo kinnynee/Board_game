@@ -122,7 +122,7 @@ export default function MessagesPage() {
       const data = await api.sendMessage(idHoiThoai, chuoiTinNhan.trim());
       setDsTinNhan((prev) => [...prev, data]);
       setChuoiTinNhan('');
-      setGhiChu('Da gui tin nhan.');
+      setGhiChu('Đã gửi tin nhắn.');
       await taiDanhSachHoiThoai();
     } catch (err) {
       setLoi(err.message);
@@ -138,9 +138,9 @@ export default function MessagesPage() {
 
   const thongKe = useMemo(
     () => [
-      { label: 'Hoi thoai', value: dsHoiThoai.length, tone: 'text-[var(--accent-forest)]' },
-      { label: 'Dang chat', value: idHoiThoai ? 1 : 0, tone: 'text-[var(--accent)]' },
-      { label: 'Tin nhan', value: dsTinNhan.length, tone: 'text-[var(--text-strong)]' },
+      { label: 'Hội thoại', value: dsHoiThoai.length, tone: 'text-[var(--accent-forest)]' },
+      { label: 'Đang chat', value: idHoiThoai ? 1 : 0, tone: 'text-[var(--accent)]' },
+      { label: 'Tin nhắn', value: dsTinNhan.length, tone: 'text-[var(--text-strong)]' },
     ],
     [dsHoiThoai.length, idHoiThoai, dsTinNhan.length]
   );
@@ -153,20 +153,20 @@ export default function MessagesPage() {
           <div className="space-y-4">
             <p className="section-tag mb-0">Messages Hub</p>
             <h1 className="text-3xl font-black tracking-tight text-[var(--text-strong)] sm:text-5xl">
-              Nhan tin nhanh, xem hoi thoai ro rang va giu nhac dieu hien dai cho app.
+              Nhắn tin nhanh, xem hội thoại rõ ràng và giữ nhạc điệu hiện đại cho app.
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-[var(--text-soft)] sm:text-base">
-              Trang tin nhan nay da duoc phoi lai bang Tailwind CSS cho bo cuc linh hoat, ket hop Headless UI de xu ly
-              menu thao tac, khu huong dan va danh sach hoi thoai tren mobile.
+              Trang tin nhắn này đã được phối lại bằng Tailwind CSS cho bố cục linh hoạt, kết hợp Headless UI để xử lý
+              menu thao tác, khu hướng dẫn và danh sách hội thoại trên mobile.
             </p>
             <Disclosure as="div" className="rounded-3xl border border-[var(--stroke)] bg-white/60 p-4 dark:bg-white/5">
               <DisclosureButton className="flex w-full items-center justify-between gap-4 text-left text-sm font-semibold text-[var(--text-strong)]">
-                <span>Huong dan su dung nhanh</span>
-                <span className="text-[var(--text-muted)]">Mo rong</span>
+                <span>Hướng dẫn sử dụng nhanh</span>
+                <span className="text-[var(--text-muted)]">Mở rộng</span>
               </DisclosureButton>
               <DisclosurePanel className="mt-3 space-y-2 text-sm leading-6 text-[var(--text-soft)]">
-                <p>Chon mot hoi thoai o cot trai de tai lich su tin nhan va danh dau da doc.</p>
-                <p>Tren man hinh nho, ban co the mo danh sach hoi thoai bang nut o khu thao tac ben phai.</p>
+                <p>Chọn một hội thoại ở cột trái để tải lịch sử tin nhắn và đánh dấu đã đọc.</p>
+                <p>Trên màn hình nhỏ, bạn có thể mở danh sách hội thoại bằng nút ở khu thao tác bên phải.</p>
               </DisclosurePanel>
             </Disclosure>
           </div>
@@ -200,14 +200,14 @@ export default function MessagesPage() {
       <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="hidden overflow-hidden rounded-[28px] border border-[var(--stroke)] bg-[var(--panel)] shadow-[var(--card-shadow)] xl:flex xl:flex-col">
           <div className="border-b border-[var(--stroke)] px-5 py-4">
-            <p className="section-tag mb-1">Danh sach</p>
-            <h2 className="text-xl font-black text-[var(--text-strong)]">Hoi thoai gan day</h2>
+            <p className="section-tag mb-1">Danh sách</p>
+            <h2 className="text-xl font-black text-[var(--text-strong)]">Hội thoại gần đây</h2>
           </div>
 
           <div className="max-h-[720px] overflow-y-auto p-3">
             {dangTaiHoiThoai ? (
               <div className="rounded-3xl border border-dashed border-[var(--stroke-strong)] px-4 py-8 text-center text-sm text-[var(--text-soft)]">
-                Dang tai danh sach hoi thoai...
+                Đang tải danh sách hội thoại...
               </div>
             ) : dsHoiThoai.length ? (
               <div className="space-y-3">
@@ -241,7 +241,7 @@ export default function MessagesPage() {
                             ) : null}
                           </div>
                           <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--text-soft)]">
-                            {item.last_message || 'Chua co noi dung xem truoc.'}
+                            {item.last_message || 'Chưa có nội dung xem trước.'}
                           </p>
                         </div>
                       </div>
@@ -251,7 +251,7 @@ export default function MessagesPage() {
               </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-[var(--stroke-strong)] px-4 py-8 text-center text-sm text-[var(--text-soft)]">
-                Chua co hoi thoai nao. Hay ket ban va bat dau nhan tin.
+                Chưa có hội thoại nào. Hãy kết bạn và bắt đầu nhắn tin.
               </div>
             )}
           </div>
@@ -263,12 +263,12 @@ export default function MessagesPage() {
               <div className="min-w-0">
                 <p className="section-tag mb-1">Active chat</p>
                 <h2 className="truncate text-2xl font-black text-[var(--text-strong)]">
-                  {nguoiDangChat?.display_name || nguoiDangChat?.username || 'Chon mot hoi thoai'}
+                  {nguoiDangChat?.display_name || nguoiDangChat?.username || 'Chọn một hội thoại'}
                 </h2>
                 <p className="mt-1 text-sm text-[var(--text-soft)]">
                   {nguoiDangChat
-                    ? `Dang tro chuyen voi @${nguoiDangChat.username || nguoiDangChat.display_name || idHoiThoai}`
-                    : 'Chon mot hoi thoai o danh sach de mo lich su nhan tin.'}
+                    ? `Đang trò chuyện với @${nguoiDangChat.username || nguoiDangChat.display_name || idHoiThoai}`
+                    : 'Chọn một hội thoại ở danh sách để mở lịch sử nhắn tin.'}
                 </p>
               </div>
 
@@ -278,12 +278,12 @@ export default function MessagesPage() {
                   className="inline-flex items-center justify-center rounded-full border border-[var(--stroke-strong)] px-4 py-2 text-sm font-semibold text-[var(--text-strong)] xl:hidden"
                   onClick={() => setMoDanhSachMobile(true)}
                 >
-                  Mo hoi thoai
+                  Mở hội thoại
                 </button>
 
                 <Menu as="div" className="relative">
                   <MenuButton className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(209,111,52,0.26)]">
-                    Thao tac
+                    Thao tác
                   </MenuButton>
                   <MenuItems
                     anchor="bottom end"
@@ -295,7 +295,7 @@ export default function MessagesPage() {
                         className="block w-full rounded-xl px-3 py-2 text-left text-sm text-[var(--text-strong)] data-[focus]:bg-white/70 dark:data-[focus]:bg-white/8"
                         onClick={taiDanhSachHoiThoai}
                       >
-                        Tai lai danh sach hoi thoai
+                        Tải lại danh sách hội thoại
                       </button>
                     </MenuItem>
                     <MenuItem>
@@ -303,7 +303,7 @@ export default function MessagesPage() {
                         to="/friends"
                         className="block rounded-xl px-3 py-2 text-sm text-[var(--text-strong)] data-[focus]:bg-white/70 dark:data-[focus]:bg-white/8"
                       >
-                        Mo trang ban be
+                        Mở trang bạn bè
                       </Link>
                     </MenuItem>
                   </MenuItems>
@@ -317,7 +317,7 @@ export default function MessagesPage() {
               <div className="max-h-[560px] min-h-[420px] space-y-4 overflow-y-auto px-5 py-5">
                 {dangTaiTinNhan ? (
                   <div className="rounded-3xl border border-dashed border-[var(--stroke-strong)] px-4 py-10 text-center text-sm text-[var(--text-soft)]">
-                    Dang tai lich su tin nhan...
+                    Đang tải lịch sử tin nhắn...
                   </div>
                 ) : dsTinNhan.length ? (
                   dsTinNhan.map((m) => {
@@ -343,7 +343,7 @@ export default function MessagesPage() {
                   })
                 ) : (
                   <div className="rounded-3xl border border-dashed border-[var(--stroke-strong)] px-4 py-10 text-center text-sm text-[var(--text-soft)]">
-                    Chua co tin nhan nao trong hoi thoai nay. Hay gui mot loi chao dau tien.
+                    Chưa có tin nhắn nào trong hội thoại này. Hãy gửi một lời chào đầu tiên.
                   </div>
                 )}
                 <div ref={msgEndRef} />
@@ -351,7 +351,7 @@ export default function MessagesPage() {
 
               <div className="border-t border-[var(--stroke)] px-5 py-4">
                 <div className="mb-3 rounded-2xl border border-[var(--stroke)] bg-white/55 px-4 py-3 text-sm text-[var(--text-soft)] dark:bg-white/5">
-                  Lan cap nhat gan nhat: {dsTinNhan.at(-1)?.created_at ? formatDateTime(dsTinNhan.at(-1).created_at) : 'Chua co du lieu'}
+                  Lần cập nhật gần nhất: {dsTinNhan.at(-1)?.created_at ? formatDateTime(dsTinNhan.at(-1).created_at) : 'Chưa có dữ liệu'}
                 </div>
                 <div className="flex flex-col gap-3 md:flex-row">
                   <input
@@ -364,7 +364,7 @@ export default function MessagesPage() {
                         guiTinDi();
                       }
                     }}
-                    placeholder="Nhap tin nhan cua ban..."
+                    placeholder="Nhập tin nhắn của bạn..."
                   />
                   <button
                     type="button"
@@ -372,7 +372,7 @@ export default function MessagesPage() {
                     onClick={guiTinDi}
                     disabled={dangGui || !chuoiTinNhan.trim()}
                   >
-                    {dangGui ? 'Dang gui...' : 'Gui tin'}
+                    {dangGui ? 'Đang gửi...' : 'Gửi tin'}
                   </button>
                 </div>
               </div>
@@ -383,16 +383,16 @@ export default function MessagesPage() {
                 M
               </div>
               <div className="max-w-md space-y-2">
-                <h3 className="text-2xl font-black text-[var(--text-strong)]">Chon mot hoi thoai de bat dau</h3>
+                <h3 className="text-2xl font-black text-[var(--text-strong)]">Chọn một hội thoại để bắt đầu</h3>
                 <p className="text-sm leading-7 text-[var(--text-soft)]">
-                  Ban co the mo danh sach hoi thoai o cot trai, hoac vao trang ban be de ket noi va tao cuoc tro chuyen moi.
+                  Bạn có thể mở danh sách hội thoại ở cột trái, hoặc vào trang bạn bè để kết nối và tạo cuộc trò chuyện mới.
                 </p>
               </div>
               <Link
                 to="/friends"
                 className="inline-flex items-center justify-center rounded-full bg-[var(--accent-forest)] px-5 py-3 text-sm font-semibold text-white"
               >
-                Mo trang ban be
+                Mở trang bạn bè
               </Link>
             </div>
           )}
@@ -406,14 +406,14 @@ export default function MessagesPage() {
             <div className="flex items-center justify-between border-b border-[var(--stroke)] px-5 py-4">
               <div>
                 <p className="section-tag mb-1">Mobile list</p>
-                <DialogTitle className="text-xl font-black text-[var(--text-strong)]">Chon hoi thoai</DialogTitle>
+                <DialogTitle className="text-xl font-black text-[var(--text-strong)]">Chọn hội thoại</DialogTitle>
               </div>
               <button
                 type="button"
                 className="rounded-full border border-[var(--stroke-strong)] px-3 py-1.5 text-sm font-semibold text-[var(--text-strong)]"
                 onClick={() => setMoDanhSachMobile(false)}
               >
-                Dong
+                Đóng
               </button>
             </div>
 
@@ -439,7 +439,7 @@ export default function MessagesPage() {
                             {item.user?.display_name || item.user?.username || `User ${item.user_id}`}
                           </p>
                           <p className="mt-1 truncate text-sm text-[var(--text-soft)]">
-                            {item.last_message || 'Chua co noi dung xem truoc.'}
+                            {item.last_message || 'Chưa có nội dung xem trước.'}
                           </p>
                         </div>
                       </div>
@@ -448,7 +448,7 @@ export default function MessagesPage() {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-[var(--stroke-strong)] px-4 py-10 text-center text-sm text-[var(--text-soft)]">
-                  Chua co hoi thoai nao de hien thi.
+                  Chưa có hội thoại nào để hiển thị.
                 </div>
               )}
             </div>
